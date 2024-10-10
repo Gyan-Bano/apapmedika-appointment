@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html
+  lang="en"
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:th="http://thymeleaf.org"
+>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Doctors</title>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="//cdn.datatables.net/2.1.8/css/dataTables.dataTables.min.css"
+    />
+    <script src="//cdn.datatables.net/2.1.8/js/dataTables.min.js"></script>
+    <object th:include="~{fragments/common :: js}" th:remove="tag"></object>
+    <object th:include="~{fragments/common :: css}" th:remove="tag"></object>
+  </head>
+
+  <body>
+    <nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+    <div class="container">
+      <div class="d-flex justify-content-between align-items-center my-4">
+        <h2>Doctors</h2>
+        <a href="/doctor/create" class="btn btn-primary">Add Doctor</a>
+      </div>
+
+      <table id="doctorsTable" class="display">
+        <thead>
+          <tr>
+            <th>No</th>
+            <th>ID</th>
+            <th>Doctor</th>
+            <th>Specialization</th>
+            <th>Schedule (Days)</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="doctor, iterStat : ${listDoctors}">
+            <td th:text="${iterStat.count}"></td>
+            <td th:text="${doctor.id}"></td>
+            <td th:text="${doctor.name}"></td>
+            <td th:text="${doctor.specialization}"></td>
+            <td th:text="${doctor.schedules}"></td>
+            <td>
+              <a
+                th:href="@{/doctor/detail/{id}(id=${doctor.id})}"
+                class="btn btn-primary btn-sm"
+                >Detail</a
+              >
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <script>
+      $(document).ready(function () {
+        new DataTable("#doctorsTable", {
+          paging: true,
+          searching: true,
+          info: true,
+          lengthChange: true,
+          pageLength: 10,
+        });
+      });
+    </script>
+  </body>
+</html>

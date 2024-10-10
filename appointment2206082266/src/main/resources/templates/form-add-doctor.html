@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Create Doctor</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+    <script th:inline="javascript">
+      // Passing dayToNumber map from Thymeleaf to JavaScript
+      const dayToNumber = /*[[${dayToNumber}]]*/ {};
+
+      function addScheduleRow() {
+        const scheduleTable = document.getElementById("scheduleTable");
+        const newRow = document.createElement("tr");
+        const rowCount = scheduleTable.rows.length;
+
+        // Create select options dynamically based on the dayToNumber object
+        let options = '<option value="">Choose the day...</option>';
+        for (const [day, value] of Object.entries(dayToNumber)) {
+          options += `<option value="${value}">${day}</option>`;
+        }
+
+        newRow.innerHTML = `
+          <td>
+            <select class="form-control" name="schedules[${rowCount - 1}]">
+              ${options}
+            </select>
+          </td>
+          <td>
+            <button class="btn btn-danger" type="button" onclick="deleteScheduleRow(this)">Delete</button>
+          </td>
+        `;
+
+        scheduleTable.appendChild(newRow);
+      }
+
+      function deleteScheduleRow(button) {
+        const row = button.parentNode.parentNode;
+        row.parentNode.removeChild(row);
+      }
+    </script>
+  </head>
+  <body>
+    <nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+    <div class="container mt-4">
+      <h2 class="text-center mb-4">New Doctor</h2>
+
+      <form
+        th:action="@{/doctor/create}"
+        method="post"
+        th:object="${AddDoctorRequestDTO}"
+      >
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="name" class="form-label">Name</label>
+            <input
+              type="text"
+              class="form-control"
+              id="name"
+              th:field="*{name}"
+              required
+            />
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input
+              type="email"
+              class="form-control"
+              id="email"
+              th:field="*{email}"
+              required
+            />
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Gender</label>
+            <div>
+              <div class="form-check form-check-inline">
+                <input
+                  class="form-check-input"
+                  type="radio"
+                  th:field="*{gender}"
+                  id="female"
+                  value="true"
+                  required
+                />
+                <label class="form-check-label" for="female">Female</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input
+                  class="form-check-input"
+                  type="radio"
+                  th:field="*{gender}"
+                  id="male"
+                  value="false"
+                />
+                <label class="form-check-label" for="male">Male</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-4 mb-3">
+            <label for="specialist" class="form-label">Specialization</label>
+            <select
+              class="form-control"
+              id="specialist"
+              th:field="*{specialist}"
+              required
+            >
+              <option value="">Choose specialization...</option>
+              <option
+                th:each="entry : ${specializationCodes}"
+                th:value="${entry.key}"
+                th:text="${entry.value.code + ' - ' + entry.value.description}"
+              ></option>
+            </select>
+          </div>
+
+          <div class="col-md-4 mb-3">
+            <label for="yearsOfExperience" class="form-label"
+              >Years of Experience</label
+            >
+            <input
+              type="number"
+              class="form-control"
+              id="yearsOfExperience"
+              th:field="*{yearsOfExperience}"
+              required
+            />
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label for="fee" class="form-label">Fee</label>
+          <input
+            type="number"
+            class="form-control"
+            id="fee"
+            th:field="*{fee}"
+            required
+          />
+        </div>
+
+        <div class="mb-3">
+          <label for="schedule" class="form-label">Schedule</label>
+          <div class="input-group">
+            <table class="table" id="scheduleTable">
+              <thead>
+                <tr>
+                  <th>Day</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <select class="form-control" name="schedules[0]">
+                      <option value="">Choose the day...</option>
+                      <option
+                        th:each="day : ${dayToNumber}"
+                        th:value="${day.value}"
+                        th:text="${day.key}"
+                      ></option>
+                    </select>
+                  </td>
+                  <td>
+                    <button
+                      class="btn btn-danger"
+                      type="button"
+                      onclick="deleteScheduleRow(this)"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <button
+              class="btn btn-primary"
+              type="button"
+              onclick="addScheduleRow()"
+            >
+              Add Schedule
+            </button>
+          </div>
+        </div>
+
+        <div class="text-center mt-4">
+          <button type="submit" class="btn btn-primary me-2">Submit</button>
+          <a href="/doctor/all" class="btn btn-secondary">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </body>
+</html>
