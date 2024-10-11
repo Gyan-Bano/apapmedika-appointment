@@ -1,5 +1,6 @@
 package apap.ti.appointment2206082266.service;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,18 +38,6 @@ public class DoctorServiceImpl implements DoctorService{
         SPECIALIZATION_CODES.put(17, new SpecializationInfo("RAD", "Radiologi"));
     }
 
-    private static final Map<Integer, String> DAY_MAP = new HashMap<>();
-    static {
-        DAY_MAP.put(1, "Monday");
-        DAY_MAP.put(2, "Tuesday");
-        DAY_MAP.put(3, "Wednesday");
-        DAY_MAP.put(4, "Thursday");
-        DAY_MAP.put(5, "Friday");
-        DAY_MAP.put(6, "Saturday");
-        DAY_MAP.put(7, "Sunday");
-    }
-
-    
     @Override
     public Map<Integer, SpecializationInfo> getSpecializationCodes() {
         return SPECIALIZATION_CODES;
@@ -57,19 +46,27 @@ public class DoctorServiceImpl implements DoctorService{
     @Override
     public String generateDoctorId(Integer specialist) {
         SpecializationInfo specInfo = SPECIALIZATION_CODES.get(specialist);
-    
+
         if (specInfo == null) {
             throw new IllegalArgumentException("Invalid specialist code");
         }
         String specCode = specInfo.getCode(); 
 
-        Doctor lastDoctor = doctorDb.findTopBySpecialistOrderByIdDesc(specialist);
+        Doctor lastDoctor = doctorDb.findTopByOrderByIdDesc();
 
         int sequenceNumber = 1; // Default to 001 if no doctor is found
         if (lastDoctor != null) {
             String lastId = lastDoctor.getId();
-            String lastSequence = lastId.substring(3, 6);
-            sequenceNumber = Integer.parseInt(lastSequence) + 1;
+            if (lastId.length() >= 6) {
+                String lastSequence = lastId.substring(3, 6);
+                try {
+                    sequenceNumber = Integer.parseInt(lastSequence) + 1;
+                } catch (NumberFormatException e) {
+                    throw new IllegalArgumentException("Invalid format for last doctor's ID");
+                }
+            } else {
+                throw new IllegalArgumentException("Invalid format for last doctor's ID");
+            }
         }
 
         String sequence = String.format("%03d", sequenceNumber);
@@ -84,5 +81,35 @@ public class DoctorServiceImpl implements DoctorService{
     @Override
     public List<Doctor> getAllDoctors() {
         return doctorDb.findAll();
+    }
+
+    @Override
+    public Doctor getDoctorById(String id) {
+        return doctorDb.findById(id).orElse(null);
+    }
+
+    @Override
+    public Doctor updateDoctor(Doctor doctor) {
+        Doctor getDoctor = getDoctorById(doctor.getId());
+        if (getDoctor != null) {
+            getDoctor.setName(doctor.getName());
+            getDoctor.setSpecialist(doctor.getSpecialist());
+            getDoctor.setEmail(doctor.getEmail());
+            getDoctor.setGender(doctor.getGender());
+            getDoctor.setYearsOfExperience(doctor.getYearsOfExperience());
+            getDoctor.setSchedules(doctor.getSchedules());
+            getDoctor.setFee(doctor.getFee()); 
+
+            doctorDb.save(getDoctor);
+
+            return getDoctor;
+        }
+        return null;
+    }
+
+    @Override
+    public void deleteDoctor(Doctor doctor) {
+        doctor.setDeletedAt(new Date());
+        doctorDb.save(doctor);
     }
 }

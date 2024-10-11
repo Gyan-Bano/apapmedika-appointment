@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
   <head>
     <meta charset="UTF-8" />
-    <title>Create Doctor</title>
+    <title>Update Doctor</title>
     <link
       rel="stylesheet"
       href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
@@ -22,7 +22,6 @@
           options += `<option value="${value}">${day}</option>`;
         }
 
-        // ini masukkin data
         newRow.innerHTML = `
           <td>
             <select class="form-control" name="schedules[${rowCount - 1}]">
@@ -47,15 +46,27 @@
     <nav th:replace="~{fragments/navbar :: navbar}"></nav>
 
     <div class="container mt-4">
-      <h2 class="text-center mb-4">New Doctor</h2>
+      <h2 class="text-center mb-4">Update Doctor</h2>
 
       <form
-        th:action="@{/doctor/create}"
+        th:action="@{/doctor/update}"
         method="post"
-        th:object="${AddDoctorRequestDTO}"
+        th:object="${UpdateDoctorRequestDTO}"
       >
+        <input type="hidden" th:field="*{id}" />
+
         <div class="row">
-          <div class="col-md-6 mb-3">
+          <div class="col-md-4 mb-3">
+            <label for="id" class="form-label">ID</label>
+            <input
+              type="text"
+              class="form-control"
+              id="id"
+              th:field="*{id}"
+              disabled
+            />
+          </div>
+          <div class="col-md-4 mb-3">
             <label for="name" class="form-label">Name</label>
             <input
               type="text"
@@ -65,7 +76,7 @@
               required
             />
           </div>
-          <div class="col-md-6 mb-3">
+          <div class="col-md-4 mb-3">
             <label for="email" class="form-label">Email</label>
             <input
               type="email"
@@ -118,6 +129,7 @@
                 th:each="entry : ${specializationCodes}"
                 th:value="${entry.key}"
                 th:text="${entry.value.code + ' - ' + entry.value.description}"
+                th:selected="${entry.key} == ${UpdateDoctorRequestDTO.specialist}"
               ></option>
             </select>
           </div>
@@ -158,14 +170,18 @@
                 </tr>
               </thead>
               <tbody>
-                <tr>
+                <tr th:each="schedule, stat : *{schedules}">
                   <td>
-                    <select class="form-control" name="schedules[0]">
+                    <select
+                      class="form-control"
+                      th:field="*{schedules[__${stat.index}__]}"
+                    >
                       <option value="">Choose the day...</option>
                       <option
                         th:each="day : ${dayToNumber}"
                         th:value="${day.value}"
                         th:text="${day.key}"
+                        th:selected="${number} == ${schedule}"
                       ></option>
                     </select>
                   </td>
@@ -192,8 +208,14 @@
         </div>
 
         <div class="text-center mt-4">
-          <button type="submit" class="btn btn-primary me-2">Submit</button>
-          <a href="/doctor/all" class="btn btn-secondary">Cancel</a>
+          <button type="submit" class="btn btn-primary me-2">
+            Update Doctor
+          </button>
+          <a
+            th:href="@{/doctor/{id}(id=${UpdateDoctorRequestDTO.id})}"
+            class="btn btn-secondary"
+            >Cancel</a
+          >
         </div>
       </form>
     </div>

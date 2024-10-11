@@ -11,5 +11,7 @@ public interface DoctorService {
     String generateDoctorId(Integer specialist);
     Map<Integer, SpecializationInfo> getSpecializationCodes();
     List<Doctor> getAllDoctors();
-
+    Doctor getDoctorById(String id);
+    Doctor updateDoctor(Doctor doctorFromDTO);
+    void deleteDoctor(Doctor doctor);
 }

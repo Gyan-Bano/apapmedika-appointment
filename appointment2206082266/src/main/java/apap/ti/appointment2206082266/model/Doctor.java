@@ -10,7 +10,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 @Setter
 @Getter
@@ -23,7 +22,9 @@ import java.util.UUID;
 public class Doctor {
 
     @Id
-    private String id = UUID.randomUUID().toString();
+    @Column(name = "id", nullable = false)
+    private String id;
+
 
 
     @NotNull
