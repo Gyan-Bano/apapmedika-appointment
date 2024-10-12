@@ -52,7 +52,7 @@ public class DoctorController {
     }
 
     @GetMapping("/all")
-      public String viewAllDoctors(Model model) {
+    public String viewAllDoctors(Model model) {
         List<Doctor> listDoctors = doctorService.getAllDoctors();
         Map<Integer, SpecializationInfo> specializationCodes = doctorService.getSpecializationCodes();
 
@@ -177,7 +177,7 @@ public class DoctorController {
         Doctor doctor = doctorService.getDoctorById(id);
         model.addAttribute("doctor", doctor);
         // load deleteconfirmcontent sebagai model jadi hanya sebagian gitu
-        return "delete-doctor-confirmation :: deleteConfirmContent";
+        return "confirmation-delete-doctor :: deleteConfirmContent";
     }
 
 

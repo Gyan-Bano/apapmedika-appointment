@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <object th:include="~{fragments/common :: js}" th:remove="tag"></object>
+    <object th:include="~{fragments/common :: css}" th:remove="tag"></object>
+    <title>New Patient & Appointment</title>
+    <!-- Use JavaScript for filtering schedules based on doctor selection -->
+    <script th:inline="javascript">
+      function filterSchedules() {
+        var doctorId = document.getElementById("doctorId").value;
+        var scheduleSelect = document.getElementById("appointmentDate");
+        var scheduleOptions = scheduleSelect.options;
+
+        // Hide all options first
+        for (var i = 0; i < scheduleOptions.length; i++) {
+          scheduleOptions[i].style.display = "none";
+        }
+
+        // Show the default "Select doctor first..." option
+        scheduleOptions[0].style.display = "block";
+
+        // Show options for the selected doctor
+        var doctorOptions = scheduleSelect.getElementsByClassName(
+          "doctor-" + doctorId
+        );
+        for (var i = 0; i < doctorOptions.length; i++) {
+          doctorOptions[i].style.display = "block";
+        }
+
+        // Reset the selected value
+        scheduleSelect.value = "";
+      }
+    </script>
+  </head>
+  <body>
+    <nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+    <div class="container mt-4">
+      <h2 class="text-center mb-4">New Patient & Appointment</h2>
+
+      <!-- The form uses GET to fetch the initial form and POST for submission -->
+      <form
+        th:action="@{/appointment/create-with-patient}"
+        method="post"
+        th:object="${AddPatientAppointmentRequestDTO}"
+      >
+        <div class="card">
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label for="name" class="form-label">Name</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="name"
+                  th:field="*{name}"
+                  required
+                />
+              </div>
+              <div class="col-md-4 mb-3">
+                <label for="nik" class="form-label">NIK</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="nik"
+                  th:field="*{nik}"
+                  required
+                />
+              </div>
+              <div class="col-md-4 mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input
+                  type="email"
+                  class="form-control"
+                  id="email"
+                  th:field="*{email}"
+                  required
+                />
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Gender</label>
+                <div>
+                  <div class="form-check form-check-inline">
+                    <input
+                      class="form-check-input"
+                      type="radio"
+                      th:field="*{gender}"
+                      id="male"
+                      value="false"
+                      required
+                    />
+                    <label class="form-check-label" for="male">Male</label>
+                  </div>
+                  <div class="form-check form-check-inline">
+                    <input
+                      class="form-check-input"
+                      type="radio"
+                      th:field="*{gender}"
+                      id="female"
+                      value="true"
+                    />
+                    <label class="form-check-label" for="female">Female</label>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label for="birthPlace" class="form-label">Birth Place</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="birthPlace"
+                  th:field="*{birthPlace}"
+                  required
+                />
+              </div>
+              <div class="col-md-4 mb-3">
+                <label for="birthDate" class="form-label">Date of Birth</label>
+                <input
+                  type="date"
+                  class="form-control"
+                  id="birthDate"
+                  th:field="*{birthDate}"
+                  required
+                />
+              </div>
+            </div>
+
+            <!-- Doctor selection -->
+            <div class="mb-3">
+              <label for="doctorId" class="form-label">Doctor</label>
+              <select
+                class="form-control"
+                id="doctorId"
+                th:field="*{doctorId}"
+                required
+                onchange="filterSchedules()"
+              >
+                <option value="">Choose doctor...</option>
+                <option
+                  th:each="doctor : ${listDoctors}"
+                  th:value="${doctor.id}"
+                  th:text="${doctor.name + ' - ' + doctorSpecializations[doctor.id]}"
+                ></option>
+              </select>
+            </div>
+
+            <!-- Appointment date selection -->
+            <div class="mb-3">
+              <label for="appointmentDate" class="form-label"
+                >Appointment Date</label
+              >
+              <select
+                class="form-control"
+                id="appointmentDate"
+                th:field="*{appointmentDate}"
+                required
+              >
+                <option value="">Select doctor first...</option>
+                <th:block th:each="doctor : ${listDoctors}">
+                  <option
+                    th:each="schedule : ${doctorSchedules[doctor.id]}"
+                    th:value="${#dates.format(schedule, 'yyyy-MM-dd')}"
+                    th:text="${#dates.format(schedule, 'dd MMMM yyyy')}"
+                    th:class="${'doctor-' + doctor.id}"
+                    style="display: none"
+                  ></option>
+                </th:block>
+              </select>
+            </div>
+
+            <div class="text-center mt-4">
+              <button type="submit" class="btn btn-primary me-2">Submit</button>
+              <a href="/patient/all" class="btn btn-secondary">Cancel</a>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </body>
+</html>

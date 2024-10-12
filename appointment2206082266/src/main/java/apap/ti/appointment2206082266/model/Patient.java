@@ -41,7 +41,7 @@ public class Patient {
     @Column(name = "email", nullable = false)
     private String email;
 
-    @Column(name = "birth_date", nullable = false)
+    @Column(name = "birth_date", nullable = false)  
     @Temporal(TemporalType.TIMESTAMP)
     private Date birthDate;
 

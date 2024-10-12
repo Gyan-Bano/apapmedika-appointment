@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html
+  lang="en"
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:th="http://thymeleaf.org"
+>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Appointments</title>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="//cdn.datatables.net/2.1.8/css/dataTables.dataTables.min.css"
+    />
+    <script src="//cdn.datatables.net/2.1.8/js/dataTables.min.js"></script>
+    <object th:include="~{fragments/common :: js}" th:remove="tag"></object>
+    <object th:include="~{fragments/common :: css}" th:remove="tag"></object>
+  </head>
+
+  <body>
+    <nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+    <div class="container">
+      <!-- Top Filters Section -->
+      <div class="d-flex justify-content-between align-items-center my-4">
+        <h2>Appointments</h2>
+        <div>
+          <button class="btn btn-secondary btn-statistics">Show Statistic</button>
+          <a href="/patient/search" class="btn btn-primary btn-add">Add Appointment</a>
+        </div>
+      </div>
+
+      <div class="row mb-3 filter-inputs">
+        <div class="col-md-3">
+          <select class="form-select" id="statusFilter">
+            <option value="">All Status</option>
+            <option value="Created">Created</option>
+            <option value="Cancelled">Cancelled</option>
+            <option value="Done">Done</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <input
+            type="text"
+            id="fromDate"
+            class="form-control"
+            placeholder="From: dd-mm-yyyy"
+          />
+        </div>
+        <div class="col-md-3">
+          <input
+            type="text"
+            id="toDate"
+            class="form-control"
+            placeholder="To: dd-mm-yyyy"
+          />
+        </div>
+      </div>
+
+      <!-- Table Section -->
+      <table id="appointmentsTable" class="display">
+        <thead>
+          <tr>
+            <th>No</th>
+            <th>ID</th>
+            <th>Doctor</th>
+            <th>Patient</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Example Row for Thymeleaf -->
+          <!-- <tr th:each="appointment, iterStat : ${listAppointments}">
+            <td th:text="${iterStat.count}"></td>
+            <td th:text="${appointment.id}"></td>
+            <td th:text="${appointment.doctor.name}"></td>
+            <td th:text="${appointment.patient.name}"></td>
+            <td th:text="${#dates.format(appointment.date, 'dd-MM-yyyy')}"></td>
+            <td th:text="${appointment.status}"></td>
+            <td>
+              <a
+                th:href="@{/appointment/{id}(id=${appointment.id})}"
+                class="btn btn-primary btn-sm"
+                >Detail</a
+              >
+            </td> 
+          </tr> -->
+        </tbody>
+      </table>
+    </div>
+
+    <script>
+      $(document).ready(function () {
+        new DataTable("#appointmentsTable", {
+          paging: true,
+          searching: true,
+          info: true,
+          lengthChange: true,
+          pageLength: 10,
+        });
+      });
+    </script>
+  </body>
+</html>

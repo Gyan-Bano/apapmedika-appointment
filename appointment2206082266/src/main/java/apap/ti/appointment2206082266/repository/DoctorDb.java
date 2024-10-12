@@ -6,5 +6,4 @@ import apap.ti.appointment2206082266.model.Doctor;
 
 @Repository
 public interface DoctorDb extends JpaRepository<Doctor, String>{
-    Doctor findTopByOrderByIdDesc();
 }

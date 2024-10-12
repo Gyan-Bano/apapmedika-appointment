@@ -1,13 +1,17 @@
 package apap.ti.appointment2206082266.service;
 
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import apap.ti.appointment2206082266.model.Appointment;
 import apap.ti.appointment2206082266.model.Doctor;
 import apap.ti.appointment2206082266.model.SpecializationInfo;
 import apap.ti.appointment2206082266.repository.DoctorDb;
@@ -16,6 +20,9 @@ import apap.ti.appointment2206082266.repository.DoctorDb;
 public class DoctorServiceImpl implements DoctorService{
     @Autowired
     DoctorDb doctorDb;
+
+    private static int globalSequenceNumber = 0;
+
 
     private static final Map<Integer, SpecializationInfo> SPECIALIZATION_CODES = new HashMap<>();
     static {
@@ -44,7 +51,7 @@ public class DoctorServiceImpl implements DoctorService{
     }
 
     @Override
-    public String generateDoctorId(Integer specialist) {
+    public synchronized String generateDoctorId(Integer specialist) {
         SpecializationInfo specInfo = SPECIALIZATION_CODES.get(specialist);
 
         if (specInfo == null) {
@@ -52,24 +59,12 @@ public class DoctorServiceImpl implements DoctorService{
         }
         String specCode = specInfo.getCode(); 
 
-        Doctor lastDoctor = doctorDb.findTopByOrderByIdDesc();
+        // Increment the global sequence number
+        globalSequenceNumber++;
 
-        int sequenceNumber = 1; // Default to 001 if no doctor is found
-        if (lastDoctor != null) {
-            String lastId = lastDoctor.getId();
-            if (lastId.length() >= 6) {
-                String lastSequence = lastId.substring(3, 6);
-                try {
-                    sequenceNumber = Integer.parseInt(lastSequence) + 1;
-                } catch (NumberFormatException e) {
-                    throw new IllegalArgumentException("Invalid format for last doctor's ID");
-                }
-            } else {
-                throw new IllegalArgumentException("Invalid format for last doctor's ID");
-            }
-        }
+        // Use the global sequence number, ensuring it's always 3 digits
+        String sequence = String.format("%03d", globalSequenceNumber % 1000);
 
-        String sequence = String.format("%03d", sequenceNumber);
         return specCode + sequence;
     }
 
@@ -111,5 +106,46 @@ public class DoctorServiceImpl implements DoctorService{
     public void deleteDoctor(Doctor doctor) {
         doctor.setDeletedAt(new Date());
         doctorDb.save(doctor);
+    }
+
+   @Override
+    public List<Date> getNextFourWeeks(Doctor doctor) {
+        List<Integer> practiceDays = doctor.getSchedules();
+        List<Date> nextFourWeeks = new ArrayList<>();
+        List<Date> bookedDates = new ArrayList<>();
+
+        // Get all booked dates from appointments
+        for (Appointment appointment : doctor.getAppointments()) {
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(appointment.getDate());
+            cal.set(Calendar.HOUR_OF_DAY, 0);
+            cal.set(Calendar.MINUTE, 0);
+            cal.set(Calendar.SECOND, 0);
+            cal.set(Calendar.MILLISECOND, 0);
+            bookedDates.add(cal.getTime());
+        }
+
+        Calendar calendar = Calendar.getInstance();
+        for (int i = 0; i < 28; i++) { // Check the next 28 days
+            calendar.add(Calendar.DAY_OF_MONTH, 1);
+            int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
+            // Convert Calendar's day of week to match your schedule (1 for Monday, 2 for Tuesday, etc.)
+            int convertedDayOfWeek = dayOfWeek == 1 ? 7 : dayOfWeek - 1;
+            
+            if (practiceDays.contains(convertedDayOfWeek)) {
+                Calendar currentDate = (Calendar) calendar.clone();
+                currentDate.set(Calendar.HOUR_OF_DAY, 0);
+                currentDate.set(Calendar.MINUTE, 0);
+                currentDate.set(Calendar.SECOND, 0);
+                currentDate.set(Calendar.MILLISECOND, 0);
+                
+                // Only add the date if it's not already booked
+                if (!bookedDates.contains(currentDate.getTime())) {
+                    nextFourWeeks.add(calendar.getTime());
+                }
+            }
+        }
+
+        return nextFourWeeks;
     }
 }

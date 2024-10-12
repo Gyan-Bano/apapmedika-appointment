@@ -10,7 +10,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 @Setter
 @Getter
@@ -23,7 +22,8 @@ import java.util.UUID;
 public class Appointment {
 
     @Id
-    private String id = UUID.randomUUID().toString();
+    @Column(name = "id", nullable = false)
+    private String id;
 
     @ManyToOne
     @JoinColumn(name = "doctor_id", nullable = false)
@@ -49,7 +49,7 @@ public class Appointment {
     )
     private List<Treatment> treatments;
 
-    @Column(name = "total_fee", nullable = false)
+    @Column(name = "total_fee")
     private Long totalFee;
 
     @NotNull
