@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <object th:include="~{fragments/common :: js}" th:remove="tag"></object>
+    <object th:include="~{fragments/common :: css}" th:remove="tag"></object>
+    <title>Update Appointment</title>
+    <script th:inline="javascript">
+      function filterSchedules() {
+        var doctorId = document.getElementById("doctorId").value;
+        var scheduleSelect = document.getElementById("appointmentDate");
+
+        // Clear the current selection
+        scheduleSelect.value = "";
+
+        // Hide all options
+        for (var i = 0; i < scheduleSelect.options.length; i++) {
+          scheduleSelect.options[i].style.display = "none";
+        }
+
+        // Show the default option
+        scheduleSelect.options[0].style.display = "block";
+
+        // Show options for the selected doctor
+        if (doctorId) {
+          var doctorOptions = scheduleSelect.getElementsByClassName(
+            "doctor-" + doctorId
+          );
+          for (var i = 0; i < doctorOptions.length; i++) {
+            doctorOptions[i].style.display = "block";
+          }
+        }
+      }
+
+      // Run filterSchedules on page load
+      window.onload = function () {
+        filterSchedules();
+
+        // Set the selected date if it exists
+        var scheduleSelect = document.getElementById("appointmentDate");
+        var selectedDate =
+          /*[[${UpdateAppointmentRequestDTO.appointmentDate}]]*/ null;
+        if (selectedDate) {
+          for (var i = 0; i < scheduleSelect.options.length; i++) {
+            if (scheduleSelect.options[i].value === selectedDate) {
+              scheduleSelect.options[i].selected = true;
+              break;
+            }
+          }
+        }
+      };
+    </script>
+  </head>
+  <body>
+    <nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+    <div class="container mt-4">
+      <h2 class="text-center mb-4">Update Appointment</h2>
+
+      <form
+        th:action="@{/appointment/update}"
+        method="post"
+        th:object="${UpdateAppointmentRequestDTO}"
+      >
+        <div class="card">
+          <div class="card-body">
+            <input type="hidden" th:field="*{id}" />
+            <input type="hidden" th:field="*{nik}" />
+
+            <div class="mb-3">
+              <label for="id" class="form-label">ID</label>
+              <input
+                type="text"
+                class="form-control"
+                id="id"
+                th:field="*{id}"
+                disabled
+              />
+            </div>
+
+            <div class="mb-3">
+              <label for="doctorId" class="form-label">Doctor</label>
+              <select
+                class="form-select"
+                id="doctorId"
+                th:field="*{doctorId}"
+                required
+                onchange="filterSchedules()"
+              >
+                <option value="">Choose doctor...</option>
+                <option
+                  th:each="doctor : ${listDoctors}"
+                  th:value="${doctor.id}"
+                  th:text="${doctor.name + ' - ' + doctorSpecializations[doctor.id]}"
+                ></option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label for="appointmentDate" class="form-label"
+                >Appointment Date</label
+              >
+              <select
+                class="form-select"
+                id="appointmentDate"
+                th:field="*{appointmentDate}"
+                required
+              >
+                <option value="">Select doctor first...</option>
+                <th:block th:each="doctor : ${listDoctors}">
+                  <option
+                    th:each="schedule : ${doctorSchedules[doctor.id]}"
+                    th:value="${#dates.format(schedule, 'yyyy-MM-dd')}"
+                    th:text="${#dates.format(schedule, 'dd MMMM yyyy')}"
+                    th:class="${'doctor-' + doctor.id}"
+                    style="display: none"
+                  ></option>
+                </th:block>
+              </select>
+            </div>
+
+            <div class="text-center mt-4">
+              <button type="submit" class="btn btn-primary me-2">Update</button>
+              <a href="/appointment/all" class="btn btn-secondary">Cancel</a>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </body>
+</html>

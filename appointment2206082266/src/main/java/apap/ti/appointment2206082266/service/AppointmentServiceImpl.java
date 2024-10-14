@@ -110,4 +110,26 @@ public class AppointmentServiceImpl implements AppointmentService {
     public Appointment addAppointment(Appointment appointment) {
         return appointmentDb.save(appointment);
     }
+
+    @Override
+    public Appointment updateAppointment(Appointment appointment) {
+        Appointment getAppointment = getAppointmentById(appointment.getId());
+        if (getAppointment != null) {
+            getAppointment.setPatient(appointment.getPatient());
+            getAppointment.setDate(appointment.getDate());
+
+            doctorService.updateAppointmentDoctor(getAppointment.getDoctor().getId(), appointment.getDoctor().getId(), getAppointment);
+
+            getAppointment.setDoctor(appointment.getDoctor());
+            getAppointment.setTotalFee(appointment.getTotalFee());
+
+
+            appointmentDb.save(getAppointment);
+
+            return getAppointment;
+        }
+        return null;
+    }
+
+    
 }

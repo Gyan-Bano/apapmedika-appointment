@@ -18,4 +18,5 @@ public interface DoctorService {
     void deleteDoctor(Doctor doctor);
     List<Date> getNextFourWeeks(Doctor doctor);
     void addAppointmentToDoctor(String id, Appointment appointment);
+    void updateAppointmentDoctor(String oldDoctorId, String newDoctorId, Appointment appointment); 
 }

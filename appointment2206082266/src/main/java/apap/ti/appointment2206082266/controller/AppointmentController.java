@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import apap.ti.appointment2206082266.dto.request.AddAppointmentRequestDTO;
 import apap.ti.appointment2206082266.dto.request.AddPatientAppointmentRequestDTO;
+import apap.ti.appointment2206082266.dto.request.UpdateAppointmentRequestDTO;
 import apap.ti.appointment2206082266.model.Appointment;
 import apap.ti.appointment2206082266.model.Doctor;
 import apap.ti.appointment2206082266.model.Patient;
@@ -101,7 +102,7 @@ public class AppointmentController {
         } else {
             // Add an error message to the model
             model.addAttribute("responseMessage", String.format("Pasien dengan NIK %s sudah ada. Appointment gagal dibuat.", appointmentWithNewPatientRequestDTO.getNik()));
-            
+
             return formCreateAppointmentWithPatient(model);
         }
     }
@@ -183,5 +184,54 @@ public class AppointmentController {
 
         return "response-appointment";
     }
+
+    @GetMapping("/{id}/update")
+    public String updateAppointmentForm(@PathVariable String id, Model model) {
+        Appointment appointment = appointmentService.getAppointmentById(id);
+
+        var appointmentRequestDTO = new UpdateAppointmentRequestDTO();
+        appointmentRequestDTO.setId(appointment.getId());
+        appointmentRequestDTO.setDoctorId(appointment.getDoctor().getId());
+        appointmentRequestDTO.setAppointmentDate(appointment.getDate());
+
+        model.addAttribute("UpdateAppointmentRequestDTO", appointmentRequestDTO);
+
+        // Load list of doctors
+        List<Doctor> listDoctors = doctorService.getAllDoctors();
+        model.addAttribute("listDoctors", listDoctors);
+
+        // Load specializations for doctors
+        Map<String, String> doctorSpecializations = new HashMap<>();
+        for (Doctor doctor : listDoctors) {
+            SpecializationInfo specializationInfo = doctorService.getSpecializationCodes().get(doctor.getSpecialist());
+            doctorSpecializations.put(doctor.getId(), specializationInfo.getDescription());
+        }
+        model.addAttribute("doctorSpecializations", doctorSpecializations);
+
+        // Load schedules for all doctors
+        Map<String, List<Date>> doctorSchedules = new HashMap<>();
+        for (Doctor doctor : listDoctors) {
+            List<Date> nextFourWeeks = doctorService.getNextFourWeeks(doctor);
+            doctorSchedules.put(doctor.getId(), nextFourWeeks); // Doctor's ID as the key
+        }
+        model.addAttribute("doctorSchedules", doctorSchedules); // Send schedules to the view
+
+        return "form-update-appointment";
+    }
+
+    @PostMapping("/update")
+    public String updateAppointment(@Valid @ModelAttribute("UpdateAppointmentRequestDTO") UpdateAppointmentRequestDTO appointmentRequestDTO, Model model) {
+        Appointment appointmentFromDTO = appointmentService.getAppointmentById(appointmentRequestDTO.getId());
+        appointmentFromDTO.setId(appointmentRequestDTO.getId());
+        appointmentFromDTO.setDoctor(doctorService.getDoctorById(appointmentRequestDTO.getDoctorId()));
+        appointmentFromDTO.setDate(appointmentRequestDTO.getAppointmentDate());
+
+        var appointment = appointmentService.updateAppointment(appointmentFromDTO);
+
+        model.addAttribute("responseMessage", 
+            String.format("Appointment dengan ID %s berhasil diupdate.", appointment.getId()));
+        return "response-appointment";                     
+    }
 }
+
 

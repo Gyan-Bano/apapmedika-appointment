@@ -153,4 +153,17 @@ public class DoctorServiceImpl implements DoctorService{
         doctor.getAppointments().add(appointment);
         doctorDb.save(doctor);
     }
+
+    @Override
+    public void updateAppointmentDoctor(String oldDoctorId, String newDoctorId, Appointment appointment) {
+        // Get the doctor who currently has the appointment
+        Doctor oldDoctor = getDoctorById(oldDoctorId);
+        oldDoctor.getAppointments().remove(appointment);
+        doctorDb.save(oldDoctor);
+
+        // Get the doctor who will have the appointment
+        Doctor newDoctor = getDoctorById(newDoctorId);
+        newDoctor.getAppointments().add(appointment);
+        doctorDb.save(newDoctor);
+    }
 }

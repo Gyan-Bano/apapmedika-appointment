@@ -31,7 +31,12 @@
 
           <div class="btn-group" role="group" aria-label="Appointment actions">
             <button class="btn btn-success btn-sm rounded">Mark as Done</button>
-            <button class="btn btn-primary btn-sm ms-2 rounded">Update</button>
+            <a
+              class="btn btn-primary btn-sm ms-2 rounded"
+              th:href="@{/appointment/{id}/update(id=${appointment.id})}"
+            >
+              Update
+            </a>
             <button class="btn btn-warning btn-sm ms-2 rounded">Cancel</button>
             <button class="btn btn-danger btn-sm ms-2 rounded">Delete</button>
           </div>
