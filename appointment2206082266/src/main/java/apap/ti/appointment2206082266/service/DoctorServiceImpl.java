@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -145,7 +144,13 @@ public class DoctorServiceImpl implements DoctorService{
                 }
             }
         }
-
         return nextFourWeeks;
+    }
+
+    @Override
+    public void addAppointmentToDoctor(String doctorId, Appointment appointment) {
+        Doctor doctor = getDoctorById(doctorId);
+        doctor.getAppointments().add(appointment);
+        doctorDb.save(doctor);
     }
 }

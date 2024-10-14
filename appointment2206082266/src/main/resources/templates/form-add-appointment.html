@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <object th:include="~{fragments/common :: js}" th:remove="tag"></object>
+    <object th:include="~{fragments/common :: css}" th:remove="tag"></object>
+    <title>New Appointment for Existing Patient</title>
+    <script th:inline="javascript">
+      function filterSchedules() {
+        var doctorId = document.getElementById("doctorId").value;
+        var scheduleSelect = document.getElementById("appointmentDate");
+        var scheduleOptions = scheduleSelect.options;
+
+        for (var i = 0; i < scheduleOptions.length; i++) {
+          scheduleOptions[i].style.display = "none";
+        }
+
+        scheduleOptions[0].style.display = "block";
+
+        var doctorOptions = scheduleSelect.getElementsByClassName(
+          "doctor-" + doctorId
+        );
+        for (var i = 0; i < doctorOptions.length; i++) {
+          doctorOptions[i].style.display = "block";
+        }
+
+        scheduleSelect.value = "";
+      }
+    </script>
+  </head>
+  <body>
+    <nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+    <div class="container mt-4">
+      <h2 class="text-center mb-4">
+        New Appointment for <span th:text="${patient.name}"></span>
+      </h2>
+
+      <form
+        th:action="@{/appointment/{nik}/create(nik=${AddAppointmentRequestDTO.nik})}"
+        method="post"
+        th:object="${AddAppointmentRequestDTO}"
+      >
+        <div class="card">
+          <div class="card-body">
+            <div class="mb-3">
+              <label for="nik" class="form-label">Patient NIK</label>
+              <input
+                type="text"
+                class="form-control"
+                id="nik"
+                th:field="*{nik}"
+                readonly
+              />
+            </div>
+
+            <div class="mb-3">
+              <label for="doctorId" class="form-label">Doctor</label>
+              <select
+                class="form-control"
+                id="doctorId"
+                th:field="*{doctorId}"
+                required
+                onchange="filterSchedules()"
+              >
+                <option value="">Choose doctor...</option>
+                <option
+                  th:each="doctor : ${listDoctors}"
+                  th:value="${doctor.id}"
+                  th:text="${doctor.name + ' - ' + doctorSpecializations[doctor.id]}"
+                ></option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label for="appointmentDate" class="form-label"
+                >Appointment Date</label
+              >
+              <select
+                class="form-control"
+                id="appointmentDate"
+                th:field="*{appointmentDate}"
+                required
+              >
+                <option value="">Select doctor first...</option>
+                <th:block th:each="doctor : ${listDoctors}">
+                  <option
+                    th:each="schedule : ${doctorSchedules[doctor.id]}"
+                    th:value="${#dates.format(schedule, 'yyyy-MM-dd')}"
+                    th:text="${#dates.format(schedule, 'dd MMMM yyyy')}"
+                    th:class="${'doctor-' + doctor.id}"
+                    style="display: none"
+                  ></option>
+                </th:block>
+              </select>
+            </div>
+
+            <div class="text-center mt-4">
+              <button type="submit" class="btn btn-primary me-2">Submit</button>
+              <a href="/patient/all" class="btn btn-secondary">Cancel</a>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </body>
+</html>

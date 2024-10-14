@@ -26,8 +26,12 @@
       <div class="d-flex justify-content-between align-items-center my-4">
         <h2>Appointments</h2>
         <div>
-          <button class="btn btn-secondary btn-statistics">Show Statistic</button>
-          <a href="/patient/search" class="btn btn-primary btn-add">Add Appointment</a>
+          <button class="btn btn-secondary btn-statistics">
+            Show Statistic
+          </button>
+          <a href="/patient/search" class="btn btn-primary btn-add"
+            >Add Appointment</a
+          >
         </div>
       </div>
 
@@ -35,9 +39,11 @@
         <div class="col-md-3">
           <select class="form-select" id="statusFilter">
             <option value="">All Status</option>
-            <option value="Created">Created</option>
-            <option value="Cancelled">Cancelled</option>
-            <option value="Done">Done</option>
+            <option
+              th:each="entry : ${statusMap}"
+              th:value="${entry.key}"
+              th:text="${entry.value}"
+            ></option>
           </select>
         </div>
         <div class="col-md-3">
@@ -72,22 +78,22 @@
           </tr>
         </thead>
         <tbody>
-          <!-- Example Row for Thymeleaf -->
-          <!-- <tr th:each="appointment, iterStat : ${listAppointments}">
+          <tr th:each="appointment, iterStat : ${listAppointments}">
             <td th:text="${iterStat.count}"></td>
             <td th:text="${appointment.id}"></td>
             <td th:text="${appointment.doctor.name}"></td>
             <td th:text="${appointment.patient.name}"></td>
             <td th:text="${#dates.format(appointment.date, 'dd-MM-yyyy')}"></td>
-            <td th:text="${appointment.status}"></td>
+            <td th:text="${statusMap[appointment.status]}"></td>
+            <!-- Updated status display -->
             <td>
               <a
                 th:href="@{/appointment/{id}(id=${appointment.id})}"
                 class="btn btn-primary btn-sm"
                 >Detail</a
               >
-            </td> 
-          </tr> -->
+            </td>
+          </tr>
         </tbody>
       </table>
     </div>

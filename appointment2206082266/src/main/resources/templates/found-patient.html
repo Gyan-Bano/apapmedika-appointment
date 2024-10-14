@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html
+  lang="en"
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:th="http://thymeleaf.org"
+>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <object th:include="~{fragments/common :: js}" th:remove="tag"></object>
+    <object th:include="~{fragments/common :: css}" th:remove="tag"></object>
+    <title>Patient Found</title>
+  </head>
+
+  <body>
+    <nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+    <div class="container mt-5">
+      <div class="row justify-content-center">
+        <div class="col-md-8">
+          <div class="card">
+            <div class="card-body">
+              <h2 class="card-title text-center mb-4">Patient Found</h2>
+
+              <form>
+                <div class="row mb-3">
+                  <!-- NIK Field -->
+                  <div class="col-md-6">
+                    <label for="nik" class="form-label">NIK</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="nik"
+                      name="nik"
+                      th:value="${patient.nik}"
+                      readonly
+                    />
+                  </div>
+
+                  <!-- Name Field -->
+                  <div class="col-md-6">
+                    <label for="name" class="form-label">Name</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="name"
+                      name="name"
+                      th:value="${patient.name}"
+                      readonly
+                    />
+                  </div>
+                </div>
+
+                <div class="row mb-3">
+                  <!-- Gender Field -->
+                  <div class="col-md-6">
+                    <label for="gender" class="form-label">Gender</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="gender"
+                      name="gender"
+                      th:value="${patient.gender}"
+                      readonly
+                    />
+                  </div>
+
+                  <!-- Date of Birth Field -->
+                  <div class="col-md-6">
+                    <label for="dob" class="form-label">Date of Birth</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="dob"
+                      name="dob"
+                      th:value="${formattedBirthDate}"
+                      readonly
+                    />
+                  </div>
+                </div>
+
+                <!-- Create Appointment Button -->
+                <div class="d-flex justify-content-center">
+                  <a
+                    th:href="@{/appointment/{nik}/create(nik=${patient.nik})}"
+                    class="btn btn-primary"
+                  >
+                    Create Appointment
+                  </a>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

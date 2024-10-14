@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html
+  lang="en"
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:th="http://thymeleaf.org"
+>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <object th:include="~{fragments/common :: js}" th:remove="tag"></object>
+    <object th:include="~{fragments/common :: css}" th:remove="tag"></object>
+    <title>Patient Not Found</title>
+  </head>
+
+  <body>
+    <nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+    <div class="container mt-5">
+      <div class="row justify-content-center">
+        <div class="col-md-8">
+          <div class="card">
+            <div class="card-body">
+              <h2 class="card-title text-center mb-4">Patient Not Found</h2>
+              <p class="text-center">
+                Please insert as new patient before making the appointment.
+              </p>
+              <div class="d-flex justify-content-center">
+                <a
+                  href="/appointment/create-with-patient"
+                  class="btn btn-primary"
+                  >Insert New Patient</a
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

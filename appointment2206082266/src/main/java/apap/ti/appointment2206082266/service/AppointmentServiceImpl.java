@@ -1,26 +1,26 @@
 package apap.ti.appointment2206082266.service;
 
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+
 import apap.ti.appointment2206082266.dto.request.AddPatientAppointmentRequestDTO;
 import apap.ti.appointment2206082266.model.Appointment;
-import apap.ti.appointment2206082266.model.Doctor;
 import apap.ti.appointment2206082266.model.Patient;
 import apap.ti.appointment2206082266.repository.AppointmentDb;
-import apap.ti.appointment2206082266.repository.DoctorDb;
-import apap.ti.appointment2206082266.repository.PatientDb;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 @Service
 public class AppointmentServiceImpl implements AppointmentService {
+
     @Autowired
-    private PatientDb patientDb;
+    private PatientService patientService;
 
     @Autowired
     private AppointmentDb appointmentDb;
@@ -28,16 +28,13 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Autowired
     private DoctorService doctorService;
 
-    @Autowired
-    private DoctorDb doctorDb; 
 
     private static int globalSequenceNumber = 0; 
-    private static Date lastGeneratedDate; // Store the last date when an ID was generated
+    private static Date lastGeneratedDate;
 
     @Override
     public synchronized String generateAppointmentId(String specCode, Date date) {
 
-        // Format the date as "DDMM"
         SimpleDateFormat dateFormat = new SimpleDateFormat("ddMM");
         String dateStr = dateFormat.format(date);
 
@@ -67,7 +64,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Transactional
     public Appointment createAppointmentWithPatient(AddPatientAppointmentRequestDTO dto) {
         // Check if patient exists
-        Patient patient = patientDb.findByNik(dto.getNik());
+        Patient patient = patientService.getPatientByNik(dto.getNik());
         if (patient == null) {
             // Create new patient
             patient = new Patient();
@@ -77,7 +74,7 @@ public class AppointmentServiceImpl implements AppointmentService {
             patient.setEmail(dto.getEmail());
             patient.setBirthDate(dto.getBirthDate());
             patient.setBirthPlace(dto.getBirthPlace());
-            patient = patientDb.save(patient);
+            patient = patientService.addPatient(patient);
         }
 
         // Create appointment
@@ -87,15 +84,30 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointment.setDiagnosis(dto.getDiagnosis());
         appointment.setDate(dto.getAppointmentDate());
         appointment.setStatus(0); // Default status to pending or unconfirmed
+        appointment.setTotalFee(doctorService.getDoctorById(dto.getDoctorId()).getFee());
 
         String specCode = dto.getDoctorId().substring(0, 3);
         String appointmentID = generateAppointmentId(specCode, dto.getAppointmentDate());
         appointment.setId(appointmentID);
 
-        Doctor doctor = doctorService.getDoctorById(dto.getDoctorId());
-        doctor.getAppointments().add(appointment);
-        doctorDb.save(doctor);
+        doctorService.addAppointmentToDoctor(dto.getDoctorId(), appointment);
+    
         // Save appointment to DB
+        return appointmentDb.save(appointment);
+    }
+
+    @Override
+    public List<Appointment> getAllAppointments() {
+        return appointmentDb.findAll();
+    }
+
+    @Override
+    public Appointment getAppointmentById(String id) {
+        return appointmentDb.findById(id).orElse(null);
+    }
+
+    @Override
+    public Appointment addAppointment(Appointment appointment) {
         return appointmentDb.save(appointment);
     }
 }

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html
+  lang="en"
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:th="http://www.thymeleaf.org"
+>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Appointment Detail</title>
+    <object th:include="~{fragments/common :: js}" th:remove="tag"></object>
+    <object th:include="~{fragments/common :: css}" th:remove="tag"></object>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  </head>
+  <body>
+    <nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+    <div class="container mt-4">
+      <div class="card">
+        <div
+          class="card-header d-flex justify-content-between align-items-center"
+        >
+          <div class="d-flex align-items-center">
+            <h5 class="mb-0 me-2">Appointment Detail</h5>
+            <span
+              class="badge bg-success"
+              th:text="${appointment.status}"
+            ></span>
+          </div>
+
+          <div class="btn-group" role="group" aria-label="Appointment actions">
+            <button class="btn btn-success btn-sm rounded">Mark as Done</button>
+            <button class="btn btn-primary btn-sm ms-2 rounded">Update</button>
+            <button class="btn btn-warning btn-sm ms-2 rounded">Cancel</button>
+            <button class="btn btn-danger btn-sm ms-2 rounded">Delete</button>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <p>
+                <strong>ID:</strong>
+                <span th:text="${appointment.id}"></span>
+              </p>
+              <p>
+                <strong>Patient:</strong>
+                <span th:text="${appointment.patient}"></span>
+              </p>
+              <p>
+                <strong>Doctor:</strong>
+                <span th:text="${appointment.doctor}"></span>
+              </p>
+              <p>
+                <strong>Appointment Date:</strong>
+                <span
+                  th:text="${appointment.date}"
+                ></span>
+              </p>
+              <p>
+                <strong>Created At:</strong>
+                <span
+                  th:text="${appointment.createdAt}"
+                ></span>
+              </p>
+              <p>
+                <strong>Last Updated At:</strong>
+                <span
+                  th:text="${appointment.updatedAt}"
+                ></span>
+              </p>
+            </div>
+          </div>
+
+          <hr />
+
+          <div class="row">
+            <div class="col-md-6">
+              <p><strong>Diagnosis</strong></p>
+              <div
+                class="alert alert-secondary"
+                role="alert"
+                th:if="${appointment.diagnosis == null or #strings.isEmpty(appointment.diagnosis)}"
+              >
+                No records yet.
+              </div>
+              <div
+                th:if="${appointment.diagnosis != null and not #strings.isEmpty(appointment.diagnosis)}"
+                th:text="${appointment.diagnosis}"
+              >
+                <!-- Diagnosis will be displayed here -->
+              </div>
+            </div>
+            <div class="col-md-6">
+              <p><strong>Treatments</strong></p>
+              <div class="alert alert-secondary" role="alert">
+                No treatments yet.
+              </div>
+              <!-- Note: Treatments are not provided in the controller data -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

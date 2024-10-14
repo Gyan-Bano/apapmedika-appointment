@@ -37,12 +37,10 @@ public class AddPatientAppointmentRequestDTO {
 
     private String diagnosis;
 
-    // @NotNull(message = "Status tidak boleh kosong")
-    // private Integer status;
+    private Integer status;
 
     // Field to bind selected doctor's ID
-    @NotNull(message = "Doctor ID cannot be null")
+    @NotNull(message = "ID Dokter tidak boleh kosong")
     private String doctorId;
 
- 
 }
