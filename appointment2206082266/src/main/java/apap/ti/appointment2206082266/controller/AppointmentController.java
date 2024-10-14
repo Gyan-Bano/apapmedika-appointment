@@ -92,12 +92,18 @@ public class AppointmentController {
     @PostMapping("/create-with-patient")
     public String createAppointmentWithPatient(@Valid @ModelAttribute("AddPatientAppointmentRequestDTO") AddPatientAppointmentRequestDTO appointmentWithNewPatientRequestDTO,
                                                Model model) {
-        Appointment savedAppointment = appointmentService.createAppointmentWithPatient(appointmentWithNewPatientRequestDTO);
+        if (patientService.getPatientByNik(appointmentWithNewPatientRequestDTO.getNik()) == null) {
+            Appointment savedAppointment = appointmentService.createAppointmentWithPatient(appointmentWithNewPatientRequestDTO);
 
-        // Add a success message to the model
-        model.addAttribute("responseMessage", String.format("Pasien %s dengan ID %s berhasil ditambahkan. Appointment untuk pasien ini juga berhasil dibuat dengan ID appointment %s.", savedAppointment.getPatient().getName(), savedAppointment.getPatient().getId(), savedAppointment.getId()));
-
-        return "response-appointment";
+            // Add a success message to the model
+            model.addAttribute("responseMessage", String.format("Pasien %s dengan ID %s berhasil ditambahkan. Appointment untuk pasien ini juga berhasil dibuat dengan ID appointment %s.", savedAppointment.getPatient().getName(), savedAppointment.getPatient().getId(), savedAppointment.getId()));
+            return "response-appointment";
+        } else {
+            // Add an error message to the model
+            model.addAttribute("responseMessage", String.format("Pasien dengan NIK %s sudah ada. Appointment gagal dibuat.", appointmentWithNewPatientRequestDTO.getNik()));
+            
+            return formCreateAppointmentWithPatient(model);
+        }
     }
 
     @GetMapping("/{id}")
