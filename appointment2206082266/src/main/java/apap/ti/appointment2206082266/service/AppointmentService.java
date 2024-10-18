@@ -13,4 +13,5 @@ public interface AppointmentService {
     Appointment getAppointmentById(String id);
     Appointment addAppointment(Appointment appointment);
     Appointment updateAppointment(Appointment appointment);
+    Appointment updateDiagnosisTreatment(Appointment appointment);
 }

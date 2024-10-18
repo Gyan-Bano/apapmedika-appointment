@@ -12,6 +12,7 @@ import apap.ti.appointment2206082266.dto.request.AddPatientAppointmentRequestDTO
 import apap.ti.appointment2206082266.model.Appointment;
 import apap.ti.appointment2206082266.model.Patient;
 import apap.ti.appointment2206082266.repository.AppointmentDb;
+import jakarta.persistence.EntityNotFoundException;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -81,7 +82,6 @@ public class AppointmentServiceImpl implements AppointmentService {
         Appointment appointment = new Appointment();
         appointment.setPatient(patient);
         appointment.setDoctor(doctorService.getDoctorById(dto.getDoctorId()));
-        appointment.setDiagnosis(dto.getDiagnosis());
         appointment.setDate(dto.getAppointmentDate());
         appointment.setStatus(0); // Default status to pending or unconfirmed
         appointment.setTotalFee(doctorService.getDoctorById(dto.getDoctorId()).getFee());
@@ -112,24 +112,35 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
+    @Transactional
     public Appointment updateAppointment(Appointment appointment) {
-        Appointment getAppointment = getAppointmentById(appointment.getId());
-        if (getAppointment != null) {
-            getAppointment.setPatient(appointment.getPatient());
-            getAppointment.setDate(appointment.getDate());
+        Appointment existingAppointment = appointmentDb.findById(appointment.getId())
+            .orElseThrow(() -> new EntityNotFoundException("Appointment not found"));
 
-            doctorService.updateAppointmentDoctor(getAppointment.getDoctor().getId(), appointment.getDoctor().getId(), getAppointment);
+        existingAppointment.setPatient(appointment.getPatient());
+        existingAppointment.setDate(appointment.getDate());
+        existingAppointment.setTotalFee(appointment.getTotalFee());
+        existingAppointment.setUpdatedAt(new Date());
 
-            getAppointment.setDoctor(appointment.getDoctor());
-            getAppointment.setTotalFee(appointment.getTotalFee());
-
-
-            appointmentDb.save(getAppointment);
-
-            return getAppointment;
+        // Update doctor if changed
+        if (!existingAppointment.getDoctor().getId().equals(appointment.getDoctor().getId())) {
+            doctorService.updateAppointmentDoctor(existingAppointment.getDoctor().getId(), 
+                                                  appointment.getDoctor().getId(), 
+                                                  existingAppointment);
+            existingAppointment.setDoctor(appointment.getDoctor());
         }
-        return null;
+
+        return appointmentDb.save(existingAppointment);
     }
 
+    @Override
+    public Appointment updateDiagnosisTreatment(Appointment appointment) {
+        Appointment existingAppointment = appointmentDb.findById(appointment.getId())
+            .orElseThrow(() -> new EntityNotFoundException("Appointment not found"));
+        existingAppointment.setDiagnosis(appointment.getDiagnosis());
+        existingAppointment.setTreatments(appointment.getTreatments());
+
+        return appointmentDb.save(existingAppointment);
+    }
     
 }

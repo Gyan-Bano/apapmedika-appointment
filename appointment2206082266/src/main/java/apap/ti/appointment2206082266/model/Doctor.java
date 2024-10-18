@@ -25,8 +25,6 @@ public class Doctor {
     @Column(name = "id", nullable = false)
     private String id;
 
-
-
     @NotNull
     @Column(name = "name", nullable = false)
     private String name;

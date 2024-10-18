@@ -35,10 +35,6 @@ public class AddPatientAppointmentRequestDTO {
     @DateTimeFormat(pattern = "yyyy-MM-dd") 
     private Date appointmentDate;
 
-    private String diagnosis;
-
-    private Integer status;
-
     // Field to bind selected doctor's ID
     @NotNull(message = "ID Dokter tidak boleh kosong")
     private String doctorId;

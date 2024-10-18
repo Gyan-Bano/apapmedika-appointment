@@ -52,8 +52,7 @@ public class Appointment {
     @Column(name = "total_fee")
     private Long totalFee;
 
-    @NotNull
-    @Column(name = "status", nullable = false)
+    @Column(name = "status")
     private Integer status;
 
     @CreationTimestamp

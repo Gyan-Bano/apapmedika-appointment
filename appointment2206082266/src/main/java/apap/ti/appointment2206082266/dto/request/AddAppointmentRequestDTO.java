@@ -20,8 +20,4 @@ public class AddAppointmentRequestDTO {
     @NotNull(message = "Tanggal appointment tidak boleh kosong")
     @DateTimeFormat(pattern = "yyyy-MM-dd")     
     private Date appointmentDate;
-
-    private String diagnosis;
-
-    private Integer status;
 }

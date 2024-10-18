@@ -37,15 +37,21 @@ public class Treatment {
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(name = "created_at", updatable = false)
     private Date createdAt;
 
     @UpdateTimestamp
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "updated_at", nullable = false)
+    @Column(name = "updated_at")
     private Date updatedAt;
 
     @Column(name = "deleted_at")
     @Temporal(TemporalType.TIMESTAMP)
     private Date deletedAt;
+
+    public Treatment(Long id, String name, Long price) {
+        this.id = id;
+        this.name = name;
+        this.price = price;
+    }
 }
