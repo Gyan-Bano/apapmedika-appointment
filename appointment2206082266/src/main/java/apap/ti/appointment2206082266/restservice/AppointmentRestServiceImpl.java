@@ -2,6 +2,7 @@ package apap.ti.appointment2206082266.restservice;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,7 @@ public class AppointmentRestServiceImpl implements AppointmentRestService {
     
     @Override
     public List<AppointmentResponseDTO> getAllAppointment() {
-        List<Appointment> appointmentList = appointmentDb.findAll();
+        List<Appointment> appointmentList = appointmentDb.findAllActiveAppointments();
         return appointmentList.stream().map(this::appointmentToAppointmentResponseDTO).collect(Collectors.toList());
     }
 
@@ -85,5 +86,10 @@ public class AppointmentRestServiceImpl implements AppointmentRestService {
         }
 
         return appointmentResponseDTO;
+    }
+
+    @Override
+    public long countAppointmentsByDateRange(Date startDate, Date endDate) {
+        return appointmentDb.countAllAppointmentsByDateRange(startDate, endDate);
     }
 }

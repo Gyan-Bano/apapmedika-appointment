@@ -20,7 +20,6 @@ import apap.ti.appointment2206082266.restservice.AppointmentRestService;
 import jakarta.persistence.EntityNotFoundException;
 
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClient.RequestBodySpec;
 
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
@@ -166,17 +165,17 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     public List<Appointment> getAppointmentsByDateRange(Date fromDate, Date toDate) {
         if (fromDate == null || toDate == null) {
-            return appointmentDb.findAll();
+            return appointmentDb.findAllActiveAppointments();
         }
-        return appointmentDb.findByDateBetween(fromDate, toDate);
+        return appointmentDb.findActiveAppointmentsByDateRange(fromDate, toDate);
     }
 
     @Override
     public long countAppointmentsByDateRange(Date fromDate, Date toDate) {
         if (fromDate == null || toDate == null) {
-            return appointmentDb.count();
+            return appointmentDb.countAllActiveAppointments();
         }
-        return appointmentDb.countByDateBetween(fromDate, toDate);
+        return appointmentDb.countActiveAppointmentsByDateRange(fromDate, toDate);
     }
 
     @Override

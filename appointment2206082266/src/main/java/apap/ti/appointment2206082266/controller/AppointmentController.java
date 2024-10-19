@@ -88,7 +88,6 @@ public class AppointmentController {
         return formattedAppointment;
     }
     
-
     // @GetMapping("/all")
     // public String viewAllAppointment(@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date fromDate,
     //         @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date toDate, Model model) {
@@ -104,7 +103,7 @@ public class AppointmentController {
     //     return "viewall-appointments";
     // }
 
-      @GetMapping("/all")
+    @GetMapping("/all")
     public String viewAllAppointment(
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date fromDate,
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date toDate, 

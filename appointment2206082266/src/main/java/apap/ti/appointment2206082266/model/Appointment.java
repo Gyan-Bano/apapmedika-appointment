@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.util.Date;
@@ -18,7 +17,7 @@ import java.util.List;
 @Entity
 @Table(name = "appointment")
 @SQLDelete(sql = "UPDATE appointment SET deleted_at = NOW() WHERE id=?")
-@SQLRestriction("deleted_at IS NULL")
+// @SQLRestriction("deleted_at IS NULL")
 public class Appointment {
 
     @Id
