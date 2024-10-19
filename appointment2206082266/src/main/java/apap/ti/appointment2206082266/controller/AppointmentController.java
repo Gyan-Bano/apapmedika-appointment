@@ -109,8 +109,8 @@ public class AppointmentController {
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date toDate, 
             Model model) {
         try {
-            List<AppointmentResponseDTO> filteredAppointments = appointmentService.getAllAppointmentsHybrid(fromDate, toDate);
-            long appointmentCount = appointmentService.countAppointmentsHybrid(fromDate, toDate);
+            List<AppointmentResponseDTO> filteredAppointments = appointmentService.getAllAppointmentsHybridFromRest(fromDate, toDate);
+            long appointmentCount = appointmentService.countAppointmentsHybridFromRest(fromDate, toDate);
             
             model.addAttribute("listAppointments", filteredAppointments);
             model.addAttribute("appointmentCount", appointmentCount);
@@ -420,6 +420,24 @@ public class AppointmentController {
         appointmentService.deleteAppointment(appointment);
         model.addAttribute("responseMessage", String.format("Appointment dengan ID %s berhasil dihapus.", id));
         return "response-appointment";
+    }
+
+    @GetMapping("/stat")
+    public String getStatisticAppointment(
+            @RequestParam(required = false, defaultValue = "Monthly") String period,
+            @RequestParam(required = false, defaultValue = "2024") int year,
+            Model model) {
+        try {
+            Map<String, Object> statistics = appointmentService.getAppointmentStatisticsFromRest(period, year);
+            model.addAttribute("statistics", statistics);
+            model.addAttribute("period", period);
+            model.addAttribute("year", year);
+            return "statistics-appointment"; // This should match your Thymeleaf template name
+
+        } catch (Exception e) {
+            model.addAttribute("errorMessage", e.getMessage());
+            return "response-error-rest";
+        } 
     }
 }
 

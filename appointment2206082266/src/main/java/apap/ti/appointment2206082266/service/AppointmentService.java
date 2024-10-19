@@ -2,6 +2,8 @@ package apap.ti.appointment2206082266.service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+
 
 import apap.ti.appointment2206082266.dto.request.AddPatientAppointmentRequestDTO;
 import apap.ti.appointment2206082266.model.Appointment;
@@ -20,6 +22,7 @@ public interface AppointmentService {
     List<Appointment> getAppointmentsByDateRange(Date fromDate, Date toDate);
     long countAppointmentsByDateRange(Date fromDate, Date toDate);
     List<AppointmentResponseDTO> getAllApointmentFromRest() throws Exception;
-    List<AppointmentResponseDTO> getAllAppointmentsHybrid(Date fromDate, Date toDate) throws Exception;
-    long countAppointmentsHybrid(Date fromDate, Date toDate) throws Exception;
+    List<AppointmentResponseDTO> getAllAppointmentsHybridFromRest(Date fromDate, Date toDate) throws Exception;
+    long countAppointmentsHybridFromRest(Date fromDate, Date toDate) throws Exception;
+    Map<String, Object> getAppointmentStatisticsFromRest(String period, int year) throws Exception;
 }

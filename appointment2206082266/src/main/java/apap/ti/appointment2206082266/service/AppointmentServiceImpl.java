@@ -36,9 +36,6 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Autowired
     private DoctorService doctorService;
 
-    @Autowired
-    private AppointmentRestService appointmentRestService;
-
     private final WebClient webClient;
 
     public AppointmentServiceImpl(WebClient.Builder webClientBuilder) {
@@ -197,8 +194,8 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
-    public List<AppointmentResponseDTO> getAllAppointmentsHybrid(Date fromDate, Date toDate) throws Exception {
-        List<AppointmentResponseDTO> allAppointments = appointmentRestService.getAllAppointment();
+    public List<AppointmentResponseDTO> getAllAppointmentsHybridFromRest(Date fromDate, Date toDate) throws Exception {
+        List<AppointmentResponseDTO> allAppointments = getAllApointmentFromRest();
         
         if (fromDate == null || toDate == null) {
             return allAppointments;
@@ -213,8 +210,37 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
-    public long countAppointmentsHybrid(Date fromDate, Date toDate) throws Exception {
-        List<AppointmentResponseDTO> filteredAppointments = getAllAppointmentsHybrid(fromDate, toDate);
+    public long countAppointmentsHybridFromRest(Date fromDate, Date toDate) throws Exception {
+        List<AppointmentResponseDTO> filteredAppointments = getAllAppointmentsHybridFromRest(fromDate, toDate);
         return filteredAppointments.size();
     }
+
+    @Override
+    public Map<String, Object> getAppointmentStatisticsFromRest(String period, int year) throws Exception {
+        // Build the request with WebClient and pass period and year as query parameters
+        var response = webClient
+            .get()
+            .uri(uriBuilder -> uriBuilder
+                .path("/appointment/stat")
+                .queryParam("period", period)
+                .queryParam("year", year)
+                .build()
+            )
+            .retrieve()
+            .bodyToMono(new ParameterizedTypeReference<BaseResponseDTO<Map<String, Object>>>() {})
+            .block(); // Block to wait for the response
+
+        // Handle possible null or error responses
+        if (response == null) {
+            throw new Exception("Failed to consume API for appointment statistics");
+        }
+
+        if (response.getStatus() != 200) {
+            throw new Exception(response.getMessage());
+        }
+
+        // Return the data (statistics map) from the response
+        return response.getData();
+    }
+
 }
