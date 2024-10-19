@@ -25,6 +25,7 @@ import apap.ti.appointment2206082266.model.Doctor;
 import apap.ti.appointment2206082266.model.Patient;
 import apap.ti.appointment2206082266.model.SpecializationInfo;
 import apap.ti.appointment2206082266.model.Treatment;
+import apap.ti.appointment2206082266.restdto.response.AppointmentResponseDTO;
 import apap.ti.appointment2206082266.service.AppointmentService;
 import apap.ti.appointment2206082266.service.DoctorService;
 import apap.ti.appointment2206082266.service.PatientService;
@@ -88,19 +89,41 @@ public class AppointmentController {
     }
     
 
-    @GetMapping("/all")
-    public String viewAllAppointment(@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date fromDate,
-            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date toDate, Model model) {
-        List<Appointment> filteredAppointments = appointmentService.getAppointmentsByDateRange(fromDate, toDate);
-        long appointmentCount = appointmentService.countAppointmentsByDateRange(fromDate, toDate);
-        model.addAttribute("listAppointments", filteredAppointments);
-        model.addAttribute("appointmentCount", appointmentCount);
-        model.addAttribute("statusMap", STATUS_MAP);
+    // @GetMapping("/all")
+    // public String viewAllAppointment(@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date fromDate,
+    //         @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date toDate, Model model) {
+    //     List<Appointment> filteredAppointments = appointmentService.getAppointmentsByDateRange(fromDate, toDate);
+    //     long appointmentCount = appointmentService.countAppointmentsByDateRange(fromDate, toDate);
+    //     model.addAttribute("listAppointments", filteredAppointments);
+    //     model.addAttribute("appointmentCount", appointmentCount);
+    //     model.addAttribute("statusMap", STATUS_MAP);
 
-        model.addAttribute("fromDate", fromDate);
-        model.addAttribute("toDate", toDate);
+    //     model.addAttribute("fromDate", fromDate);
+    //     model.addAttribute("toDate", toDate);
 
-        return "viewall-appointments";
+    //     return "viewall-appointments";
+    // }
+
+      @GetMapping("/all")
+    public String viewAllAppointment(
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date fromDate,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date toDate, 
+            Model model) {
+        try {
+            List<AppointmentResponseDTO> filteredAppointments = appointmentService.getAllAppointmentsHybrid(fromDate, toDate);
+            long appointmentCount = appointmentService.countAppointmentsHybrid(fromDate, toDate);
+            
+            model.addAttribute("listAppointments", filteredAppointments);
+            model.addAttribute("appointmentCount", appointmentCount);
+            model.addAttribute("statusMap", STATUS_MAP);
+            model.addAttribute("fromDate", fromDate);
+            model.addAttribute("toDate", toDate);
+            
+            return "viewall-appointments";
+        } catch (Exception e) {
+            model.addAttribute("errorMessage", e.getMessage());
+            return "response-error-rest";
+        }
     }
 
     @GetMapping("/create-with-patient")

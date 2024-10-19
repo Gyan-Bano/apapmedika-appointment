@@ -14,11 +14,16 @@ import apap.ti.appointment2206082266.model.Appointment;
 import apap.ti.appointment2206082266.model.Doctor;
 import apap.ti.appointment2206082266.model.SpecializationInfo;
 import apap.ti.appointment2206082266.repository.DoctorDb;
+import apap.ti.appointment2206082266.repository.AppointmentDb;
+
 
 @Service
 public class DoctorServiceImpl implements DoctorService{
     @Autowired
     DoctorDb doctorDb;
+
+    @Autowired
+    AppointmentDb appointmentDb;
 
     private static int globalSequenceNumber = 0;
 
@@ -103,7 +108,18 @@ public class DoctorServiceImpl implements DoctorService{
 
     @Override
     public void deleteDoctor(Doctor doctor) {
-        doctor.setDeletedAt(new Date());
+        Date now = new Date();
+
+        // Set deletedAt timestamp for the doctor
+        doctor.setDeletedAt(now);
+
+        // Soft delete all related appointments by setting their deletedAt timestamp
+        doctor.getAppointments().forEach(appointment -> {
+            appointment.setDeletedAt(now);
+            appointmentDb.save(appointment);  // Save appointment changes
+        });
+
+        // Save the doctor entity with the deletedAt timestamp
         doctorDb.save(doctor);
     }
 

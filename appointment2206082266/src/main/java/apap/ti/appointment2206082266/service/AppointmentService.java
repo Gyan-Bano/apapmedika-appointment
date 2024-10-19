@@ -5,6 +5,7 @@ import java.util.List;
 
 import apap.ti.appointment2206082266.dto.request.AddPatientAppointmentRequestDTO;
 import apap.ti.appointment2206082266.model.Appointment;
+import apap.ti.appointment2206082266.restdto.response.AppointmentResponseDTO;
 
 public interface AppointmentService {
     Appointment createAppointmentWithPatient(AddPatientAppointmentRequestDTO dto);
@@ -18,4 +19,7 @@ public interface AppointmentService {
     void deleteAppointment(Appointment appointment);
     List<Appointment> getAppointmentsByDateRange(Date fromDate, Date toDate);
     long countAppointmentsByDateRange(Date fromDate, Date toDate);
+    List<AppointmentResponseDTO> getAllApointmentFromRest() throws Exception;
+    List<AppointmentResponseDTO> getAllAppointmentsHybrid(Date fromDate, Date toDate) throws Exception;
+    long countAppointmentsHybrid(Date fromDate, Date toDate) throws Exception;
 }

@@ -3,6 +3,7 @@ package apap.ti.appointment2206082266.dto.request;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -28,7 +29,7 @@ public class AddDoctorRequestDTO {
     @NotNull(message = "Pengalaman kerja tidak boleh kosong")
     private Integer yearsOfExperience;
 
-    @NotNull(message = "Jadwal tidak boleh kosong")
+    @Size(min = 1, message = "At least one schedule must be selected")
     private List<Integer> schedules;
 
     @NotNull(message = "Biaya tidak boleh kosong")
