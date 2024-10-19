@@ -46,17 +46,20 @@ import java.util.Calendar;
 @RequestMapping("/appointment")
 public class AppointmentController {
 
-    @Autowired
-    private DoctorService doctorService;
-
-    @Autowired
-    private AppointmentService appointmentService;
-
-    @Autowired
-    private PatientService patientService;
-
-    @Autowired
-    private TreatmentService treatmentService;
+    private final DoctorService doctorService;
+    private final AppointmentService appointmentService;
+    private final PatientService patientService;
+    private final TreatmentService treatmentService;
+    
+    public AppointmentController(DoctorService doctorService,
+    AppointmentService appointmentService,
+    PatientService patientService,
+    TreatmentService treatmentService) {
+        this.doctorService = doctorService;
+        this.appointmentService = appointmentService;
+        this.patientService = patientService;
+        this.treatmentService = treatmentService;
+    }
 
     private static final Map<Integer, String> STATUS_MAP;
 

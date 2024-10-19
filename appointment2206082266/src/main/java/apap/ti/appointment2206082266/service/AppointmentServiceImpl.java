@@ -16,7 +16,6 @@ import apap.ti.appointment2206082266.model.Patient;
 import apap.ti.appointment2206082266.repository.AppointmentDb;
 import apap.ti.appointment2206082266.restdto.response.AppointmentResponseDTO;
 import apap.ti.appointment2206082266.restdto.response.BaseResponseDTO;
-import apap.ti.appointment2206082266.restservice.AppointmentRestService;
 import jakarta.persistence.EntityNotFoundException;
 
 import org.springframework.web.reactive.function.client.WebClient;
@@ -27,18 +26,18 @@ import java.util.HashMap;
 @Service
 public class AppointmentServiceImpl implements AppointmentService {
 
-    @Autowired
-    private PatientService patientService;
-
-    @Autowired
-    private AppointmentDb appointmentDb;
-
-    @Autowired
-    private DoctorService doctorService;
-
+    private final PatientService patientService;
+    private final AppointmentDb appointmentDb;
+    private final DoctorService doctorService;
     private final WebClient webClient;
 
-    public AppointmentServiceImpl(WebClient.Builder webClientBuilder) {
+    public AppointmentServiceImpl(PatientService patientService,
+                                  AppointmentDb appointmentDb,
+                                  DoctorService doctorService,
+                                  WebClient.Builder webClientBuilder) {
+        this.patientService = patientService;
+        this.appointmentDb = appointmentDb;
+        this.doctorService = doctorService;
         this.webClient = webClientBuilder.baseUrl("http://localhost:8080/api").build();
     }
 
