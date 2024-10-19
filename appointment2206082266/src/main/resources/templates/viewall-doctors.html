@@ -8,12 +8,14 @@
     <meta charset="UTF-8" />
     <title>Doctors</title>
 
+    <!-- Include jQuery and DataTables CSS/JS -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <link
       rel="stylesheet"
       href="//cdn.datatables.net/2.1.8/css/dataTables.dataTables.min.css"
     />
     <script src="//cdn.datatables.net/2.1.8/js/dataTables.min.js"></script>
+
     <object th:include="~{fragments/common :: js}" th:remove="tag"></object>
     <object th:include="~{fragments/common :: css}" th:remove="tag"></object>
   </head>
@@ -22,11 +24,42 @@
     <nav th:replace="~{fragments/navbar :: navbar}"></nav>
 
     <div class="container">
+      <!-- Page Header with Button -->
       <div class="d-flex justify-content-between align-items-center my-4">
         <h2>Doctors</h2>
         <a href="/doctor/create" class="btn btn-primary">Add Doctor</a>
       </div>
 
+      <!-- Filters Section -->
+      <div class="row mb-3">
+        <!-- Filter by Specialization -->
+        <div class="col-md-4">
+          <label for="specializationFilter">Filter by Specialization:</label>
+          <select id="specializationFilter" class="form-select">
+            <option value="">All Specializations</option>
+            <option
+              th:each="specialization : ${specializations}"
+              th:value="${specialization}"
+              th:text="${specialization}"
+            ></option>
+          </select>
+        </div>
+
+        <!-- Filter by Day -->
+        <div class="col-md-4">
+          <label for="dayFilter">Filter by Day:</label>
+          <select id="dayFilter" class="form-select">
+            <option value="">All Days</option>
+            <option
+              th:each="day : ${daysOfWeek}"
+              th:value="${day}"
+              th:text="${day}"
+            ></option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Doctors Table -->
       <table id="doctorsTable" class="display">
         <thead>
           <tr>
@@ -57,14 +90,45 @@
       </table>
     </div>
 
-    <script>
+    <!-- DataTables Script -->
+    <script th:inline="none">
       $(document).ready(function () {
-        new DataTable("#doctorsTable", {
+        // Initialize DataTables
+        var table = new DataTable("#doctorsTable", {
           paging: true,
           searching: true,
           info: true,
           lengthChange: true,
           pageLength: 10,
+          order: [[0, "asc"]], // Sort by 'No' column (index 0) ascending by default
+          columnDefs: [
+            { orderable: false, targets: [5] }, // Disable sorting for 'No' and 'Action' columns
+          ],
+        });
+
+        // Custom Filtering based on Specialization and Day
+        $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+          var specializationFilter = $("#specializationFilter").val();
+          var dayFilter = $("#dayFilter").val();
+
+          // Get the values from the columns (adjust based on the correct column index)
+          var specialization = data[3]; // Specialization column
+          var scheduleDays = data[4]; // Schedule (Days) column
+
+          // Filter logic: Match specialization and days
+          if (
+            (specializationFilter === "" ||
+              specialization === specializationFilter) &&
+            (dayFilter === "" || scheduleDays.includes(dayFilter))
+          ) {
+            return true;
+          }
+          return false;
+        });
+
+        // Event listeners for the filters
+        $("#specializationFilter, #dayFilter").on("change", function () {
+          table.draw(); // Re-filter the table when a filter value changes
         });
       });
     </script>

@@ -14,4 +14,8 @@ public interface AppointmentService {
     Appointment addAppointment(Appointment appointment);
     Appointment updateAppointment(Appointment appointment);
     Appointment updateDiagnosisTreatment(Appointment appointment);
+    Appointment updateStatus(String id, int status);
+    void deleteAppointment(Appointment appointment);
+    List<Appointment> getAppointmentsByDateRange(Date fromDate, Date toDate);
+    long countAppointmentsByDateRange(Date fromDate, Date toDate);
 }

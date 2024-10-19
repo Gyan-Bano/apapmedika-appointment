@@ -63,12 +63,12 @@
                 <strong>Gender:</strong>
                 <span th:text="${doctor.gender}"></span>
               </p>
-            </div>
-            <div class="col-md-6">
               <p>
                 <strong>Specialization:</strong>
                 <span th:text="${doctor.specialization}"></span>
               </p>
+            </div>
+            <div class="col-md-6">
               <p>
                 <strong>Years of Experience:</strong>
                 <span th:text="${doctor.yearsOfExperience}"></span>
@@ -81,6 +81,57 @@
                 <strong>Schedules:</strong>
                 <span th:text="${doctor.schedules}"></span>
               </p>
+              <p>
+                <strong>Created At:</strong>
+                <span th:text="${doctor.createdDate}"></span>
+              </p>
+              <p>
+                <strong>Last Updated At:</strong>
+                <span th:text="${doctor.updatedDate}"></span>
+              </p>
+            </div>
+          </div>
+        </div>
+        <!-- Appointments section -->
+
+        <div class="card-body">
+          <h5 class="mb-0">Appointments</h5>
+
+          <div class="card-body">
+            <div
+              th:if="${not #lists.isEmpty(doctor.appointments)}"
+              class="table-responsive"
+            >
+              <table class="table table-bordered">
+                <thead class="thead-light">
+                  <tr>
+                    <th>No</th>
+                    <th>Patient Name</th>
+                    <th>Diagnosis</th>
+                    <th>Treatment</th>
+                    <th>Total Fee</th>
+                    <th>Status</th>
+                    <th>Appointment Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr th:each="appointment, iterStat : ${doctor.appointments}">
+                    <td th:text="${iterStat.count}"></td>
+                    <td th:text="${appointment.patientName}"></td>
+                    <td th:text="${appointment.diagnosis}"></td>
+                    <td th:text="${appointment.treatments}"></td>
+                    <td th:text="${appointment.totalFee}"></td>
+                    <td th:text="${appointment.status}"></td>
+                    <td th:text="${appointment.appointmentDate}"></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div
+              th:if="${#lists.isEmpty(doctor.appointments)}"
+              class="text-center"
+            >
+              <p>No appointments available for this doctor.</p>
             </div>
           </div>
         </div>

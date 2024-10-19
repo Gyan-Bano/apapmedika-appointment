@@ -93,7 +93,7 @@ public class DoctorServiceImpl implements DoctorService{
             getDoctor.setYearsOfExperience(doctor.getYearsOfExperience());
             getDoctor.setSchedules(doctor.getSchedules());
             getDoctor.setFee(doctor.getFee()); 
-
+            getDoctor.setUpdatedAt(new Date());
             doctorDb.save(getDoctor);
 
             return getDoctor;

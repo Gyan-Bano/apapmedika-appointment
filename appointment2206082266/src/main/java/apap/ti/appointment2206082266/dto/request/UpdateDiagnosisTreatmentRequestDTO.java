@@ -1,6 +1,5 @@
 package apap.ti.appointment2206082266.dto.request;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.validation.constraints.NotNull;

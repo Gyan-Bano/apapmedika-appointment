@@ -10,6 +10,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,6 +35,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import java.time.LocalDate;
+import java.util.Calendar;
+
+
 
 
 @Controller
@@ -77,16 +82,23 @@ public class AppointmentController {
         formattedAppointment.put("status", STATUS_MAP.get(appointment.getStatus()));
         formattedAppointment.put("createdAt", dateTimeFormat.format(appointment.getCreatedAt()));
         formattedAppointment.put("updatedAt", dateTimeFormat.format(appointment.getUpdatedAt()));
+        formattedAppointment.put("totalFee", appointment.getTotalFee());
 
         return formattedAppointment;
     }
     
 
     @GetMapping("/all")
-    public String viewAllAppointment(Model model) {
-        List<Appointment> listAppointments = appointmentService.getAllAppointments();
-        model.addAttribute("listAppointments", listAppointments);
+    public String viewAllAppointment(@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date fromDate,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date toDate, Model model) {
+        List<Appointment> filteredAppointments = appointmentService.getAppointmentsByDateRange(fromDate, toDate);
+        long appointmentCount = appointmentService.countAppointmentsByDateRange(fromDate, toDate);
+        model.addAttribute("listAppointments", filteredAppointments);
+        model.addAttribute("appointmentCount", appointmentCount);
         model.addAttribute("statusMap", STATUS_MAP);
+
+        model.addAttribute("fromDate", fromDate);
+        model.addAttribute("toDate", toDate);
 
         return "viewall-appointments";
     }
@@ -208,6 +220,12 @@ public class AppointmentController {
     public String updateAppointmentForm(@PathVariable String id, Model model) {
         Appointment appointment = appointmentService.getAppointmentById(id);
 
+        if (isAppointmentWithin24Hours(appointment.getDate())) {
+            model.addAttribute("responseMessage", 
+                String.format("Appointment dengan ID %s tidak dapat diubah karena kurang dari 24 jam dari waktu appointment.", appointment.getId()));
+            return "response-appointment";
+        }
+
         var appointmentRequestDTO = new UpdateAppointmentRequestDTO();
         appointmentRequestDTO.setId(appointment.getId());
         appointmentRequestDTO.setDoctorId(appointment.getDoctor().getId());
@@ -246,6 +264,7 @@ public class AppointmentController {
         Appointment appointmentFromDTO = appointmentService.getAppointmentById(appointmentRequestDTO.getId());
         appointmentFromDTO.setId(appointmentRequestDTO.getId());
         appointmentFromDTO.setDoctor(doctorService.getDoctorById(appointmentRequestDTO.getDoctorId()));
+        appointmentFromDTO.setTotalFee(doctorService.getDoctorById(appointmentRequestDTO.getDoctorId()).getFee());
         appointmentFromDTO.setDate(appointmentRequestDTO.getAppointmentDate());
 
         var appointment = appointmentService.updateAppointment(appointmentFromDTO);
@@ -255,6 +274,23 @@ public class AppointmentController {
         return "response-appointment";                     
     }
 
+ 
+   
+    private boolean isAppointmentWithin24Hours(Date appointmentDate) {
+
+        // Konversi Date ke Calendar
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(appointmentDate);
+
+        // Buat LocalDate dari Calendar
+        LocalDate appointmentLocalDate = LocalDate.of(cal.get(Calendar.YEAR), 
+                                                        cal.get(Calendar.MONTH) + 1, 
+                                                        cal.get(Calendar.DAY_OF_MONTH));
+
+        LocalDate tomorrow = LocalDate.now().plusDays(1);
+        
+        return appointmentLocalDate.isBefore(tomorrow) || appointmentLocalDate.isEqual(tomorrow);
+    }
     
     @GetMapping("/{id}/note")
     public String viewAppointmentNoteForm(@PathVariable String id, Model model) {
@@ -288,43 +324,81 @@ public class AppointmentController {
             @RequestParam(value = "addRow", required = false) String addRow,
             @RequestParam(value = "deleteRow", required = false) Integer deleteRow,
             Model model) {
-
+    
         if (diagnosisTreatmentDTO.getTreatmentIds() == null) {
             diagnosisTreatmentDTO.setTreatmentIds(new ArrayList<>());
         }
-        model.addAttribute("appointment", formatAppointment(appointmentService.getAppointmentById(diagnosisTreatmentDTO.getId())));
-
+        Appointment appointment = appointmentService.getAppointmentById(diagnosisTreatmentDTO.getId());
+        model.addAttribute("appointment", formatAppointment(appointment));
+    
         if (addRow != null) {
             // Add a new empty treatment
             diagnosisTreatmentDTO.getTreatmentIds().add(null);
         } else if (deleteRow != null) {
             // Remove the treatment at the specified index
-            diagnosisTreatmentDTO.getTreatmentIds().remove(deleteRow.intValue());
+            Long removedTreatmentId = diagnosisTreatmentDTO.getTreatmentIds().remove(deleteRow.intValue());
+            if (removedTreatmentId != null) {
+                Treatment removedTreatment = treatmentService.getTreatmentById(removedTreatmentId);
+                appointment.setTotalFee(appointment.getTotalFee() - removedTreatment.getPrice());
+            }
         } else {
             // Save the form
-            Appointment appointment = appointmentService.getAppointmentById(diagnosisTreatmentDTO.getId());
             appointment.setDiagnosis(diagnosisTreatmentDTO.getDiagnosis());
             
-            // Convert treatment IDs back to Treatment objects
+            // Convert treatment IDs back to Treatment objects and calculate new total fee
             List<Treatment> treatments = diagnosisTreatmentDTO.getTreatmentIds().stream()
                 .filter(Objects::nonNull)
                 .map(treatmentService::getTreatmentById)
                 .collect(Collectors.toList());
             appointment.setTreatments(treatments);
-
+    
+            long totalTreatmentFee = treatments.stream()
+                .mapToLong(Treatment::getPrice)
+                .sum();
+            appointment.setTotalFee(appointment.getDoctor().getFee() + totalTreatmentFee);
+    
             appointmentService.updateDiagnosisTreatment(appointment);
-
+    
             model.addAttribute("responseMessage",
                 String.format("Berhasil mencatat diagnosis & treatment untuk appointment ID %s.", appointment.getId()));
             return "response-appointment";
         }
-
+    
         // If we're adding or deleting a row, re-render the form
         model.addAttribute("UpdateDiagnosisTreatmentRequestDTO", diagnosisTreatmentDTO);
         model.addAttribute("editable", true);
         model.addAttribute("treatments", treatmentService.getAllTreatments());
         return "view-appointment";
-    }    
+    }
+    
+    @PostMapping("/{id}/done")
+    public String updateAppointmentStatusDone(@PathVariable String id, Model model) {
+        appointmentService.updateStatus(id, 1);        
+        model.addAttribute("appointment", formatAppointment(appointmentService.getAppointmentById(id)));
+        return "view-appointment";
+    }
+    
+    @PostMapping("/{id}/cancel")
+    public String updateAppointmentStatusCancelled(@PathVariable String id, Model model) {
+        appointmentService.updateStatus(id, 2);    
+        model.addAttribute("appointment", formatAppointment(appointmentService.getAppointmentById(id)));    
+        return "view-appointment";
+    }
+
+    @GetMapping("/{id}/delete")
+    public String deleteConfirmationForm(@PathVariable String id, Model model) {
+         model.addAttribute("appointment", formatAppointment(appointmentService.getAppointmentById(id)));
+        
+        return "confirmation-delete-appointment :: deleteConfirmContent";
+    }
+    
+    @PostMapping("/delete") 
+    public String deleteAppointment(@RequestParam String id, Model model) {
+        Appointment appointment = appointmentService.getAppointmentById(id);
+        appointmentService.deleteAppointment(appointment);
+        model.addAttribute("responseMessage", String.format("Appointment dengan ID %s berhasil dihapus.", id));
+        return "response-appointment";
+    }
 }
 
 

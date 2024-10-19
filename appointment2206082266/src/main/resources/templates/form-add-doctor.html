@@ -7,41 +7,6 @@
       rel="stylesheet"
       href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
     />
-    <script th:inline="javascript">
-      // Passing dayToNumber map from Thymeleaf to JavaScript
-      const dayToNumber = /*[[${dayToNumber}]]*/ {};
-
-      function addScheduleRow() {
-        const scheduleTable = document.getElementById("scheduleTable");
-        const newRow = document.createElement("tr");
-        const rowCount = scheduleTable.rows.length;
-
-        // Create select options dynamically based on the dayToNumber object
-        let options = '<option value="">Choose the day...</option>';
-        for (const [day, value] of Object.entries(dayToNumber)) {
-          options += `<option value="${value}">${day}</option>`;
-        }
-
-        // ini masukkin data
-        newRow.innerHTML = `
-          <td>
-            <select class="form-control" name="schedules[${rowCount - 1}]">
-              ${options}
-            </select>
-          </td>
-          <td>
-            <button class="btn btn-danger" type="button" onclick="deleteScheduleRow(this)">Delete</button>
-          </td>
-        `;
-
-        scheduleTable.appendChild(newRow);
-      }
-
-      function deleteScheduleRow(button) {
-        const row = button.parentNode.parentNode;
-        row.parentNode.removeChild(row);
-      }
-    </script>
   </head>
   <body>
     <nav th:replace="~{fragments/navbar :: navbar}"></nav>
@@ -147,50 +112,52 @@
           />
         </div>
 
+        <!-- Doctor schedule table -->
         <div class="mb-3">
           <label for="schedule" class="form-label">Schedule</label>
-          <div class="input-group">
-            <table class="table" id="scheduleTable">
-              <thead>
-                <tr>
-                  <th>Day</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>
-                    <select class="form-control" name="schedules[0]">
-                      <option value="">Choose the day...</option>
-                      <option
-                        th:each="day : ${dayToNumber}"
-                        th:value="${day.value}"
-                        th:text="${day.key}"
-                      ></option>
-                    </select>
-                  </td>
-                  <td>
-                    <button
-                      class="btn btn-danger"
-                      type="button"
-                      onclick="deleteScheduleRow(this)"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-            <button
-              class="btn btn-primary"
-              type="button"
-              onclick="addScheduleRow()"
-            >
-              Add Schedule
-            </button>
-          </div>
+          <table class="table" id="scheduleTable">
+            <thead>
+              <tr>
+                <th>Day</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Render each schedule row from the DTO -->
+              <tr th:each="schedule, indexStat : *{schedules}">
+                <td>
+                  <select
+                    class="form-control"
+                    th:field="*{schedules[__${indexStat.index}__]}"
+                    required
+                  >
+                    <option value="">Choose the day...</option>
+                    <option
+                      th:each="day : ${dayToNumber}"
+                      th:value="${day.value}"
+                      th:text="${day.key}"
+                      th:selected="${schedule == day.value}"
+                    ></option>
+                  </select>
+                </td>
+                <td>
+                  <button
+                    class="btn btn-danger btn-sm"
+                    type="submit"
+                    name="deleteRow"
+                    th:value="${indexStat.index}"
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <!-- Add row button -->
+          <button class="btn btn-secondary" type="submit" name="addRow">
+            Add Schedule
+          </button>
         </div>
-
         <div class="text-center mt-4">
           <button type="submit" class="btn btn-primary me-2">Submit</button>
           <a href="/doctor/all" class="btn btn-secondary">Cancel</a>

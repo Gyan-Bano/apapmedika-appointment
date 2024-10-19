@@ -35,33 +35,53 @@
         </div>
       </div>
 
-      <div class="row mb-3 filter-inputs">
-        <div class="col-md-3">
-          <select class="form-select" id="statusFilter">
-            <option value="">All Status</option>
-            <option
-              th:each="entry : ${statusMap}"
-              th:value="${entry.key}"
-              th:text="${entry.value}"
-            ></option>
-          </select>
+      <form
+        id="filterForm"
+        th:action="@{/appointment/all}"
+        method="get"
+        class="mb-4"
+      >
+        <div class="row mb-3 filter-inputs">
+          <div class="col-md-3">
+            <select class="form-select" id="statusFilter">
+              <option value="">All Status</option>
+              <option
+                th:each="entry : ${statusMap}"
+                th:value="${entry.value}"
+                th:text="${entry.value}"
+              ></option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <input
+              type="date"
+              id="fromDate"
+              name="fromDate"
+              class="form-control"
+              th:value="${param.fromDate}"
+            />
+          </div>
+          <div class="col-md-3">
+            <input
+              type="date"
+              id="toDate"
+              name="toDate"
+              class="form-control"
+              th:value="${param.toDate}"
+            />
+          </div>
+          <div class="col-md-3">
+            <button type="submit" class="btn btn-primary">
+              Apply Date Filter
+            </button>
+          </div>
         </div>
-        <div class="col-md-3">
-          <input
-            type="text"
-            id="fromDate"
-            class="form-control"
-            placeholder="From: dd-mm-yyyy"
-          />
-        </div>
-        <div class="col-md-3">
-          <input
-            type="text"
-            id="toDate"
-            class="form-control"
-            placeholder="To: dd-mm-yyyy"
-          />
-        </div>
+      </form>
+
+      <!-- Appointment Count Display -->
+      <div class="alert alert-info" th:if="${appointmentCount != null}">
+        Number of appointments in the selected date range:
+        <span th:text="${appointmentCount}"></span>
       </div>
 
       <!-- Table Section -->
@@ -85,7 +105,6 @@
             <td th:text="${appointment.patient.name}"></td>
             <td th:text="${#dates.format(appointment.date, 'dd-MM-yyyy')}"></td>
             <td th:text="${statusMap[appointment.status]}"></td>
-            <!-- Updated status display -->
             <td>
               <a
                 th:href="@{/appointment/{id}(id=${appointment.id})}"
@@ -98,14 +117,23 @@
       </table>
     </div>
 
-    <script>
+    <script th:inline="none">
       $(document).ready(function () {
-        new DataTable("#appointmentsTable", {
+        var table = $("#appointmentsTable").DataTable({
           paging: true,
           searching: true,
           info: true,
           lengthChange: true,
           pageLength: 10,
+          order: [[0, "asc"]], // Sort by 'No' column (index 0) ascending by default
+          columnDefs: [
+            { orderable: false, targets: [6] }, // Disable sorting for 'No' and 'Action' columns
+          ],
+        });
+
+        // Status filter
+        $("#statusFilter").on("change", function () {
+          table.column(5).search(this.value).draw(); // Apply the status filter
         });
       });
     </script>

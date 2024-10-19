@@ -7,40 +7,6 @@
       rel="stylesheet"
       href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
     />
-    <script th:inline="javascript">
-      // Passing dayToNumber map from Thymeleaf to JavaScript
-      const dayToNumber = /*[[${dayToNumber}]]*/ {};
-
-      function addScheduleRow() {
-        const scheduleTable = document.getElementById("scheduleTable");
-        const newRow = document.createElement("tr");
-        const rowCount = scheduleTable.rows.length;
-
-        // Create select options dynamically based on the dayToNumber object
-        let options = '<option value="">Choose the day...</option>';
-        for (const [day, value] of Object.entries(dayToNumber)) {
-          options += `<option value="${value}">${day}</option>`;
-        }
-
-        newRow.innerHTML = `
-          <td>
-            <select class="form-control" name="schedules[${rowCount - 1}]">
-              ${options}
-            </select>
-          </td>
-          <td>
-            <button class="btn btn-danger" type="button" onclick="deleteScheduleRow(this)">Delete</button>
-          </td>
-        `;
-
-        scheduleTable.appendChild(newRow);
-      }
-
-      function deleteScheduleRow(button) {
-        const row = button.parentNode.parentNode;
-        row.parentNode.removeChild(row);
-      }
-    </script>
   </head>
   <body>
     <nav th:replace="~{fragments/navbar :: navbar}"></nav>
@@ -48,6 +14,7 @@
     <div class="container mt-4">
       <h2 class="text-center mb-4">Update Doctor</h2>
 
+      <!-- Form for updating the doctor -->
       <form
         th:action="@{/doctor/update}"
         method="post"
@@ -159,6 +126,7 @@
           />
         </div>
 
+        <!-- Schedule table -->
         <div class="mb-3">
           <label for="schedule" class="form-label">Schedule</label>
           <div class="input-group">
@@ -170,26 +138,29 @@
                 </tr>
               </thead>
               <tbody>
+                <!-- Iterate over the existing schedules -->
                 <tr th:each="schedule, stat : *{schedules}">
                   <td>
                     <select
                       class="form-control"
                       th:field="*{schedules[__${stat.index}__]}"
+                      required
                     >
                       <option value="">Choose the day...</option>
                       <option
                         th:each="day : ${dayToNumber}"
                         th:value="${day.value}"
                         th:text="${day.key}"
-                        th:selected="${number} == ${schedule}"
+                        th:selected="${schedule == day.value}"
                       ></option>
                     </select>
                   </td>
                   <td>
                     <button
-                      class="btn btn-danger"
-                      type="button"
-                      onclick="deleteScheduleRow(this)"
+                      class="btn btn-danger btn-sm"
+                      type="submit"
+                      name="deleteRow"
+                      th:value="${stat.index}"
                     >
                       Delete
                     </button>
@@ -197,11 +168,8 @@
                 </tr>
               </tbody>
             </table>
-            <button
-              class="btn btn-primary"
-              type="button"
-              onclick="addScheduleRow()"
-            >
+            <!-- Add row button -->
+            <button class="btn btn-secondary" type="submit" name="addRow">
               Add Schedule
             </button>
           </div>

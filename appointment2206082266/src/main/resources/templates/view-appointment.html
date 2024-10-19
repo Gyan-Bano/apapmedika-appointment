@@ -9,7 +9,19 @@
       rel="stylesheet"
       href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
     />
-    </head>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script th:inline="javascript">
+      function showDeleteConfirmation() {
+          var appointmentId = [[${appointment.id}]];
+          $.get('/appointment/' + appointmentId + '/delete', function(data) {
+              $('#deleteConfirmContent').html(data);
+              $('#deleteConfirmModal').modal('show');
+          });
+      }
+    </script>
+  </head>
 
   <body>
     <nav th:replace="~{fragments/navbar :: navbar}"></nav>
@@ -24,24 +36,58 @@
           <div class="d-flex align-items-center">
             <h5 class="mb-0 mr-2">Appointment Detail</h5>
             <span
-              class="badge badge-success"
+              class="badge"
+              th:classappend="${
+              appointment.status == 'Done' ? 'badge-success' : 
+              appointment.status == 'Cancelled' ? 'badge-warning' : 
+              'badge-secondary'}"
               th:text="${appointment.status}"
-            ></span>
+            >
+            </span>
           </div>
 
           <!-- Appointment Actions -->
           <div class="btn-group" role="group" aria-label="Appointment actions">
-            <button class="btn btn-success btn-sm rounded mr-2">
-              Mark as Done
-            </button>
+            <form
+              th:if="${appointment.status != Done}"
+              th:action="@{/appointment/{id}/done(id=${appointment.id})}"
+              method="post"
+              class="mr-2"
+            >
+              <button
+                type="submit"
+                class="btn btn-success btn-sm rounded"
+                th:disabled="${appointment.status == 2}"
+              >
+                Mark as Done
+              </button>
+            </form>
             <a
               class="btn btn-primary btn-sm rounded mr-2"
               th:href="@{/appointment/{id}/update(id=${appointment.id})}"
             >
               Update
             </a>
-            <button class="btn btn-warning btn-sm rounded mr-2">Cancel</button>
-            <button class="btn btn-danger btn-sm rounded">Delete</button>
+            <form
+              th:if="${appointment.status != Cancelled}"
+              th:action="@{/appointment/{id}/cancel(id=${appointment.id})}"
+              method="post"
+              class="mr-2"
+            >
+              <button
+                type="submit"
+                class="btn btn-warning btn-sm rounded"
+                th:disabled="${appointment.status == 1}"
+              >
+                Cancel
+              </button>
+            </form>
+            <button
+              class="btn btn-danger btn-sm rounded"
+              onclick="showDeleteConfirmation()"
+            >
+              Delete
+            </button>
           </div>
         </div>
 
@@ -71,6 +117,10 @@
               <p>
                 <strong>Last Updated At:</strong>
                 <span th:text="${appointment.updatedAt}"></span>
+              </p>
+              <p>
+                <strong>Total fee:</strong>
+                <span th:text="${appointment.totalFee}"></span>
               </p>
             </div>
           </div>
@@ -175,14 +225,6 @@
                     th:text="${treatment.name}"
                   ></li>
                 </ul>
-                <ul
-                  th:if="${appointment.treatments != null and not #lists.isEmpty(appointment.treatments)}"
-                >
-                  <li
-                    th:each="treatment : ${appointment.treatments}"
-                    th:text="${treatment}"
-                  ></li>
-                </ul>
                 <p
                   th:if="${appointment.treatments == null or #lists.isEmpty(appointment.treatments)}"
                 >
@@ -202,6 +244,19 @@
               </div>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+    <div
+      class="modal fade"
+      id="deleteConfirmModal"
+      tabindex="-1"
+      aria-labelledby="deleteConfirmModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content" id="deleteConfirmContent">
+          <!-- Content will be loaded here -->
         </div>
       </div>
     </div>

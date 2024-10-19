@@ -35,6 +35,7 @@ public class PatientController {
         if (patient != null) {
             SimpleDateFormat dateFormat = new SimpleDateFormat("d MMMM yyyy");
             model.addAttribute("patient", patient);
+            model.addAttribute("gender", patient.getGender() == true ? "Female" : "Male");
             model.addAttribute("formattedBirthDate", dateFormat.format(patient.getBirthDate()));
             return "found-patient";
         } else {
