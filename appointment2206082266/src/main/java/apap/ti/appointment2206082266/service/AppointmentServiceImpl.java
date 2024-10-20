@@ -1,5 +1,6 @@
 package apap.ti.appointment2206082266.service;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -238,4 +239,20 @@ public class AppointmentServiceImpl implements AppointmentService {
         return response.getData();
     }
 
+    // Service implementation
+    public List<Appointment> getTodayActiveStatusZeroCreatedAppointments() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DAY_OF_MONTH, 1);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        Date startOfDay = calendar.getTime();
+        calendar.set(Calendar.HOUR_OF_DAY, 23);
+        calendar.set(Calendar.MINUTE, 59);
+        calendar.set(Calendar.SECOND, 59);
+        calendar.set(Calendar.MILLISECOND, 999);
+        Date endOfDay = calendar.getTime();
+        return appointmentDb.findActiveStatusZeroCreatedAppointmentsForDate(startOfDay, endOfDay);
+    }
 }

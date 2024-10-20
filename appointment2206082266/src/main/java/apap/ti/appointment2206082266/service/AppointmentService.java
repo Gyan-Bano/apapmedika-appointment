@@ -24,4 +24,5 @@ public interface AppointmentService {
     List<AppointmentResponseDTO> getAllAppointmentsFromRest(Date fromDate, Date toDate) throws Exception;
     long countAppointmentsFromRest(Date fromDate, Date toDate) throws Exception;
     Map<String, Object> getAppointmentStatisticsFromRest(String period, int year) throws Exception;
+    List<Appointment> getTodayActiveStatusZeroCreatedAppointments();
 }

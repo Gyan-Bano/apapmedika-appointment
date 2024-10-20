@@ -24,17 +24,12 @@
         <div class="col">
           <div class="card">
             <div class="card-body">
-              <h2 class="card-title">20</h2>
+              <h2 class="card-title" th:text="${onGoingAppointmentToday}">
+                20
+              </h2>
               <p class="card-text">Today's Ongoing Appointments</p>
             </div>
           </div>
-        </div>
-      </div>
-      <div class="row mt-4">
-        <div class="col">
-          <a href="/appointments" class="btn btn-primary"
-            >Manage Appointments</a
-          >
         </div>
       </div>
     </div>
