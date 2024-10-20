@@ -89,6 +89,8 @@ public class DoctorController {
 
     @GetMapping("/all")
     public String viewAllDoctors(Model model) {
+        model.addAttribute("page", "doctors");
+
         List<Doctor> listDoctors = doctorService.getAllDoctors();
         Map<Integer, SpecializationInfo> specializationCodes = doctorService.getSpecializationCodes();
     
@@ -121,6 +123,8 @@ public class DoctorController {
     
     @GetMapping("/create")
     public String formCreateDoctor(Model model) {
+        model.addAttribute("page", "doctors");
+
         var doctorRequestDTO = new AddDoctorRequestDTO();
         model.addAttribute("AddDoctorRequestDTO", doctorRequestDTO);
         model.addAttribute("dayToNumber", DAY_TO_NUMBER);
@@ -137,11 +141,12 @@ public class DoctorController {
         @RequestParam(value = "addRow", required = false) String addRow,
         @RequestParam(value = "deleteRow", required = false) Integer deleteRow,
         Model model) {
-
+        
+        model.addAttribute("page", "doctors");
         // Ensure schedules list is initialized
-                if (doctorRequestDTO.getSchedules() == null) {
-                    doctorRequestDTO.setSchedules(new ArrayList<>());
-                }
+        if (doctorRequestDTO.getSchedules() == null) {
+            doctorRequestDTO.setSchedules(new ArrayList<>());
+        }
 
         // Handle adding a new schedule row
         if (addRow != null) {
@@ -186,13 +191,10 @@ public class DoctorController {
 
     @GetMapping("/{id}")
     public String detailDoctor(@PathVariable String id, Model model) {
-        Doctor doctor = doctorService.getDoctorById(id);
-        // if (doctor == null) {
-        //     // Handle case where doctor is not found
-        //     return "error-page"; // Create this page to show a "Doctor not found" message
-        // }
+        model.addAttribute("page", "doctors");
 
-    
+        Doctor doctor = doctorService.getDoctorById(id);
+       
         Map<String, Object> formattedDoctor = new HashMap<>();
         formattedDoctor.put("id", doctor.getId());
         formattedDoctor.put("name", doctor.getName());
@@ -223,6 +225,8 @@ public class DoctorController {
 
     @GetMapping("/{id}/update")
     public String updateDoctorForm(@PathVariable String id, Model model) {
+        model.addAttribute("page", "doctors");
+
         Doctor doctor = doctorService.getDoctorById(id);
         var doctorRequestDTO = new UpdateDoctorRequestDTO();
         doctorRequestDTO.setId(doctor.getId());
@@ -248,6 +252,8 @@ public class DoctorController {
         @RequestParam(value = "deleteRow", required = false) Integer deleteRow,
         Model model) {
     
+        model.addAttribute("page", "doctors");
+
         // Initialize schedules if null
         if (doctorRequestDTO.getSchedules() == null) {
             doctorRequestDTO.setSchedules(new ArrayList<>());
@@ -292,6 +298,8 @@ public class DoctorController {
 
     @GetMapping("/{id}/delete")
     public String deleteConfirmationForm(@PathVariable String id, Model model) {
+        model.addAttribute("page", "doctors");
+
         Doctor doctor = doctorService.getDoctorById(id);
         model.addAttribute("doctor", doctor);
         // load deleteconfirmcontent sebagai model jadi hanya sebagian gitu
@@ -301,6 +309,8 @@ public class DoctorController {
 
     @PostMapping("/delete")
     public String deleteDoctor(@RequestParam String id, Model model) {
+        model.addAttribute("page", "doctors");
+
         Doctor doctor = doctorService.getDoctorById(id);
         doctorService.deleteDoctor(doctor);
         model.addAttribute("responseMessage", 

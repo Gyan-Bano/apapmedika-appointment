@@ -24,12 +24,13 @@ public class PatientController {
     
     @GetMapping("/search")
     public String searchBarPatient(Model model) {
-
+        model.addAttribute("page", "appointments");
         return "search-patient";
     }
     
     @PostMapping("/search")
     public String searchPatient(@RequestParam String nik, Model model) {
+        model.addAttribute("page", "appointments");
         Patient patient = patientService.getPatientByNik(nik);
         
         if (patient != null) {

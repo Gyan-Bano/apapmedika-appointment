@@ -16,6 +16,7 @@ public class HomeController {
 
     @GetMapping("/")
     private String home(Model model) {
+        model.addAttribute("page", "home");
         model.addAttribute("onGoingAppointmentToday", appointmentService.getTodayActiveStatusZeroCreatedAppointments().size());
         return "home";
     }

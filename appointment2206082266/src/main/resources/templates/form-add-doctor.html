@@ -3,10 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <title>Create Doctor</title>
-    <link
-      rel="stylesheet"
-      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-    />
+    <object th:include="~{fragments/common :: js}" th:remove="tag"></object>
+    <object th:include="~{fragments/common :: css}" th:remove="tag"></object>
   </head>
   <body>
     <nav th:replace="~{fragments/navbar :: navbar}"></nav>
@@ -73,7 +71,7 @@
           <div class="col-md-4 mb-3">
             <label for="specialist" class="form-label">Specialization</label>
             <select
-              class="form-control"
+              class="form-select"
               id="specialist"
               th:field="*{specialist}"
               required
@@ -127,7 +125,7 @@
               <tr th:each="schedule, indexStat : *{schedules}">
                 <td>
                   <select
-                    class="form-control"
+                    class="form-select"
                     th:field="*{schedules[__${indexStat.index}__]}"
                     required
                   >

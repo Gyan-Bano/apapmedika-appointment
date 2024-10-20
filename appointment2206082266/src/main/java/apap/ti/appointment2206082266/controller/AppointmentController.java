@@ -111,6 +111,7 @@ public class AppointmentController {
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date toDate, 
             Model model) {
         try {
+            model.addAttribute("page", "appointments");
             List<AppointmentResponseDTO> filteredAppointments = appointmentService.getAllAppointmentsFromRest(fromDate, toDate);
             long appointmentCount = appointmentService.countAppointmentsFromRest(fromDate, toDate);
             
@@ -129,6 +130,7 @@ public class AppointmentController {
 
     @GetMapping("/create-with-patient")
     public String formCreateAppointmentWithPatient(Model model) {
+        model.addAttribute("page", "appointments");
         AddPatientAppointmentRequestDTO appointmentWithNewPatientRequestDTO = new AddPatientAppointmentRequestDTO();
         model.addAttribute("AddPatientAppointmentRequestDTO", appointmentWithNewPatientRequestDTO);
 
@@ -157,8 +159,9 @@ public class AppointmentController {
 
     
     @PostMapping("/create-with-patient")
-    public String createAppointmentWithPatient(@Valid @ModelAttribute("AddPatientAppointmentRequestDTO") AddPatientAppointmentRequestDTO appointmentWithNewPatientRequestDTO,
-                                               Model model) {
+    public String createAppointmentWithPatient(@Valid @ModelAttribute("AddPatientAppointmentRequestDTO") AddPatientAppointmentRequestDTO appointmentWithNewPatientRequestDTO, Model model) {
+        model.addAttribute("page", "appointments");
+                                        
         if (patientService.getPatientByNik(appointmentWithNewPatientRequestDTO.getNik()) == null) {
             Appointment savedAppointment = appointmentService.createAppointmentWithPatient(appointmentWithNewPatientRequestDTO);
 
@@ -175,6 +178,7 @@ public class AppointmentController {
 
     @GetMapping("/{id}")
     public String detailAppointment(@PathVariable String id, Model model) {
+        model.addAttribute("page", "appointments");
         Appointment appointment = appointmentService.getAppointmentById(id);
 
         // Add attributes to the model
@@ -186,6 +190,7 @@ public class AppointmentController {
 
     @GetMapping("/{nik}/create") 
     public String formCreateAppointmentWithExistingPatient(@PathVariable String nik, Model model) {
+        model.addAttribute("page", "appointments");
         Patient patient = patientService.getPatientByNik(nik);
         model.addAttribute("patient", patient);
 
@@ -217,9 +222,8 @@ public class AppointmentController {
     }
 
     @PostMapping("/{nik}/create") 
-    public String createAppointmentWithExistingPatient(@PathVariable String nik, @Valid @ModelAttribute("AddAppointmentRequestDTO") AddAppointmentRequestDTO appointmentWithExistingPatientRequestDTO,
-                                                       Model model) {
-        
+    public String createAppointmentWithExistingPatient(@PathVariable String nik, @Valid @ModelAttribute("AddAppointmentRequestDTO") AddAppointmentRequestDTO appointmentWithExistingPatientRequestDTO, Model model) {
+        model.addAttribute("page", "appointments");
         Appointment appointment = new Appointment();
         appointment.setPatient(patientService.getPatientByNik(appointmentWithExistingPatientRequestDTO.getNik()));
         appointment.setDoctor(doctorService.getDoctorById(appointmentWithExistingPatientRequestDTO.getDoctorId()));
@@ -242,6 +246,8 @@ public class AppointmentController {
 
     @GetMapping("/{id}/update")
     public String updateAppointmentForm(@PathVariable String id, Model model) {
+        model.addAttribute("page", "appointments");
+
         Appointment appointment = appointmentService.getAppointmentById(id);
 
         if (isAppointmentWithin24Hours(appointment.getDate())) {
@@ -285,6 +291,8 @@ public class AppointmentController {
 
     @PostMapping("/update")
     public String updateAppointment(@Valid @ModelAttribute("UpdateAppointmentRequestDTO") UpdateAppointmentRequestDTO appointmentRequestDTO, Model model) {
+        model.addAttribute("page", "appointments");
+
         Appointment appointmentFromDTO = appointmentService.getAppointmentById(appointmentRequestDTO.getId());
         appointmentFromDTO.setId(appointmentRequestDTO.getId());
         appointmentFromDTO.setDoctor(doctorService.getDoctorById(appointmentRequestDTO.getDoctorId()));
@@ -318,6 +326,8 @@ public class AppointmentController {
     
     @GetMapping("/{id}/note")
     public String viewAppointmentNoteForm(@PathVariable String id, Model model) {
+        model.addAttribute("page", "appointments");
+
         Appointment appointment = appointmentService.getAppointmentById(id);
         var diagnosisTreatmentDTO = new UpdateDiagnosisTreatmentRequestDTO();
         diagnosisTreatmentDTO.setId(appointment.getId());
@@ -349,6 +359,8 @@ public class AppointmentController {
             @RequestParam(value = "deleteRow", required = false) Integer deleteRow,
             Model model) {
     
+        model.addAttribute("page", "appointments");
+
         if (diagnosisTreatmentDTO.getTreatmentIds() == null) {
             diagnosisTreatmentDTO.setTreatmentIds(new ArrayList<>());
         }
@@ -397,6 +409,8 @@ public class AppointmentController {
     
     @PostMapping("/{id}/done")
     public String updateAppointmentStatusDone(@PathVariable String id, Model model) {
+        model.addAttribute("page", "appointments");
+
         appointmentService.updateStatus(id, 1);        
         model.addAttribute("appointment", formatAppointment(appointmentService.getAppointmentById(id)));
         return "view-appointment";
@@ -404,6 +418,8 @@ public class AppointmentController {
     
     @PostMapping("/{id}/cancel")
     public String updateAppointmentStatusCancelled(@PathVariable String id, Model model) {
+        model.addAttribute("page", "appointments");
+
         appointmentService.updateStatus(id, 2);    
         model.addAttribute("appointment", formatAppointment(appointmentService.getAppointmentById(id)));    
         return "view-appointment";
@@ -411,6 +427,8 @@ public class AppointmentController {
 
     @GetMapping("/{id}/delete")
     public String deleteConfirmationForm(@PathVariable String id, Model model) {
+        model.addAttribute("page", "appointments");
+
          model.addAttribute("appointment", formatAppointment(appointmentService.getAppointmentById(id)));
         
         return "confirmation-delete-appointment :: deleteConfirmContent";
@@ -418,6 +436,8 @@ public class AppointmentController {
     
     @PostMapping("/delete") 
     public String deleteAppointment(@RequestParam String id, Model model) {
+        model.addAttribute("page", "appointments");
+
         Appointment appointment = appointmentService.getAppointmentById(id);
         appointmentService.deleteAppointment(appointment);
         model.addAttribute("responseMessage", String.format("Appointment dengan ID %s berhasil dihapus.", id));
@@ -430,6 +450,8 @@ public class AppointmentController {
             @RequestParam(required = false, defaultValue = "2024") int year,
             Model model) {
         try {
+            model.addAttribute("page", "appointments");
+
             Map<String, Object> statistics = appointmentService.getAppointmentStatisticsFromRest(period, year);
             model.addAttribute("statistics", statistics);
             model.addAttribute("period", period);
