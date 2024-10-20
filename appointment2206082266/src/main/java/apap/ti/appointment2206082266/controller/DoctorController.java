@@ -75,7 +75,6 @@ public class DoctorController {
         formattedAppointment.put("status", STATUS_MAP.get(appointment.getStatus()));
         formattedAppointment.put("appointmentDate", dateFormat.format(appointment.getDate()));
         
-        // Format treatments as a comma-separated string of treatment names, or "None" if empty
         String treatments = Optional.ofNullable(appointment.getTreatments())
             .filter(list -> !list.isEmpty())
             .map(list -> list.stream()
@@ -94,31 +93,27 @@ public class DoctorController {
         List<Doctor> listDoctors = doctorService.getAllDoctors();
         Map<Integer, SpecializationInfo> specializationCodes = doctorService.getSpecializationCodes();
     
-        // Format the doctor data to pass to the view
         List<Map<String, Object>> formattedDoctors = listDoctors.stream().map(doctor -> {
             Map<String, Object> formattedDoctor = new HashMap<>();
             formattedDoctor.put("id", doctor.getId());
             formattedDoctor.put("name", doctor.getName());
             formattedDoctor.put("specialization", specializationCodes.get(doctor.getSpecialist()).getDescription());
             formattedDoctor.put("schedules", doctor.getSchedules().stream()
-                .map(NUMBER_TO_DAY::get)  // Convert schedule from number to day name
+                .map(NUMBER_TO_DAY::get)  // convert schedule from number to day name
                 .collect(Collectors.joining(", ")));
             return formattedDoctor;
         }).collect(Collectors.toList());
     
-        // Add doctor data to the model
         model.addAttribute("listDoctors", formattedDoctors);
     
-        // Pass list of specializations for filtering
         List<String> specializations = specializationCodes.values().stream()
             .map(SpecializationInfo::getDescription)
             .collect(Collectors.toList());
         model.addAttribute("specializations", specializations);
     
-        // Pass days of the week for filtering (use NUMBER_TO_DAY map)
         model.addAttribute("daysOfWeek", NUMBER_TO_DAY.values());
     
-        return "viewall-doctors";  // Make sure this corresponds to your Thymeleaf template
+        return "viewall-doctors";  
     }
     
     @GetMapping("/create")
@@ -143,22 +138,17 @@ public class DoctorController {
         Model model) {
         
         model.addAttribute("page", "doctors");
-        // Ensure schedules list is initialized
         if (doctorRequestDTO.getSchedules() == null) {
             doctorRequestDTO.setSchedules(new ArrayList<>());
         }
 
-        // Handle adding a new schedule row
         if (addRow != null) {
-            doctorRequestDTO.getSchedules().add(null);  // Add a new empty entry for schedule
+            doctorRequestDTO.getSchedules().add(null);  
         }
-        // Handle deleting an existing schedule row
         else if (deleteRow != null) {
-            doctorRequestDTO.getSchedules().remove(deleteRow.intValue());  // Remove the selected row
+            doctorRequestDTO.getSchedules().remove(deleteRow.intValue());  
         }
-        // Handle form submission to save the doctor
         else {
-            // Convert schedules (days) to numbers before saving
             Doctor doctor = new Doctor();
             doctor.setName(doctorRequestDTO.getName());
             doctor.setEmail(doctorRequestDTO.getEmail());
@@ -169,11 +159,7 @@ public class DoctorController {
             
             String doctorId = doctorService.generateDoctorId(doctor.getSpecialist());
             doctor.setId(doctorId);
-            System.out.println(doctorRequestDTO.getSchedules());
-            // Convert schedule (day names) to day numbers
             doctor.setSchedules(doctorRequestDTO.getSchedules());
-            System.out.println("Ini dia jadwalnya");
-            System.out.println(doctor.getSchedules());
             doctorService.addDoctor(doctor);
 
             model.addAttribute("responseMessage", 
@@ -181,9 +167,9 @@ public class DoctorController {
             return "response-doctor";
         }
 
-        // If adding or deleting rows, just re-render the form
+        // if adding or deleting rows, just re-render the form
         model.addAttribute("AddDoctorRequestDTO", doctorRequestDTO);
-        model.addAttribute("dayToNumber", DAY_TO_NUMBER);  // Pass day-to-number map for dropdown
+        model.addAttribute("dayToNumber", DAY_TO_NUMBER);  
         model.addAttribute("specializationCodes", doctorService.getSpecializationCodes());
         return "form-add-doctor";
     }
@@ -207,14 +193,10 @@ public class DoctorController {
                 .map(NUMBER_TO_DAY::get)
                 .collect(Collectors.joining(", ")));
         
-   
-
-        // Add metadata
         formattedDoctor.put("createdDate", dateTimeFormat.format(doctor.getCreatedAt()));
         formattedDoctor.put("updatedDate", dateTimeFormat.format(doctor.getUpdatedAt()));
 
         model.addAttribute("doctor", formattedDoctor);
-          // Format all appointments
         List<Map<String, Object>> formattedAppointments = doctor.getAppointments().stream()
         .map(this::formatAppointmentForDoctorView)
         .collect(Collectors.toList());
@@ -254,20 +236,16 @@ public class DoctorController {
     
         model.addAttribute("page", "doctors");
 
-        // Initialize schedules if null
         if (doctorRequestDTO.getSchedules() == null) {
             doctorRequestDTO.setSchedules(new ArrayList<>());
         }
     
-        // Handle adding a new schedule row
         if (addRow != null) {
-            doctorRequestDTO.getSchedules().add(null); // Add an empty row
+            doctorRequestDTO.getSchedules().add(null); 
         }
-        // Handle deleting a schedule row
         else if (deleteRow != null) {
-            doctorRequestDTO.getSchedules().remove(deleteRow.intValue()); // Remove the row by index
+            doctorRequestDTO.getSchedules().remove(deleteRow.intValue()); 
         }
-        // Handle form submission and save the updated doctor data
         else {
             Doctor doctor = new Doctor();
             doctor.setId(doctorRequestDTO.getId());
@@ -278,16 +256,15 @@ public class DoctorController {
             doctor.setYearsOfExperience(doctorRequestDTO.getYearsOfExperience());
             doctor.setFee(doctorRequestDTO.getFee());
             
-            // Map the schedule days (convert from day strings to numbers)
             doctor.setSchedules(doctorRequestDTO.getSchedules());
     
             doctorService.updateDoctor(doctor);
     
-            model.addAttribute("responseMessage", String.format("Doctor %s with ID %s successfully updated.", doctor.getName(), doctor.getId()));
+            model.addAttribute("responseMessage", String.format("Doctor %s dengan ID %s berhasil diupdate.", doctor.getName(), doctor.getId()));
             return "response-doctor";
         }
     
-        // If adding or deleting rows, re-render the form
+        // if adding or deleting rows, re-render the form
         model.addAttribute("UpdateDoctorRequestDTO", doctorRequestDTO);
         model.addAttribute("dayToNumber", DAY_TO_NUMBER);
         model.addAttribute("specializationCodes", doctorService.getSpecializationCodes());

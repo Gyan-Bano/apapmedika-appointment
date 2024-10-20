@@ -7,5 +7,5 @@ import apap.ti.appointment2206082266.model.Treatment;
 public interface TreatmentService {
     List<Treatment> getAllTreatments();
     List<String> getAllTreatmentNames();
-    Treatment getTreatmentById(Long id); // Added return type
+    Treatment getTreatmentById(Long id); 
 } 

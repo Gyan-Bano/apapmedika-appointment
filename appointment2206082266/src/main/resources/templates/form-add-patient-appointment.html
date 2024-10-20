@@ -5,22 +5,21 @@
     <object th:include="~{fragments/common :: js}" th:remove="tag"></object>
     <object th:include="~{fragments/common :: css}" th:remove="tag"></object>
     <title>New Patient & Appointment</title>
-    <!-- Use JavaScript for filtering schedules based on doctor selection -->
     <script th:inline="javascript">
       function filterSchedules() {
         var doctorId = document.getElementById("doctorId").value;
         var scheduleSelect = document.getElementById("appointmentDate");
         var scheduleOptions = scheduleSelect.options;
 
-        // Hide all options first
+        // hide all options first
         for (var i = 0; i < scheduleOptions.length; i++) {
           scheduleOptions[i].style.display = "none";
         }
 
-        // Show the default "Select doctor first..." option
+        // show the default "Select doctor first..." option
         scheduleOptions[0].style.display = "block";
 
-        // Show options for the selected doctor
+        // show options for the selected doctor
         var doctorOptions = scheduleSelect.getElementsByClassName(
           "doctor-" + doctorId
         );
@@ -28,11 +27,10 @@
           doctorOptions[i].style.display = "block";
         }
 
-        // Reset the selected value
+        // reset the selected value
         scheduleSelect.value = "";
       }
 
-      // New function to show the error modal
       function showErrorModal(message) {
         const errorModal = new bootstrap.Modal(
           document.getElementById("errorModal")
@@ -41,7 +39,6 @@
         errorModal.show();
       }
 
-      // Check for error message on page load
       document.addEventListener("DOMContentLoaded", function () {
         const errorMessage = /*[[${responseMessage}]]*/ null;
         if (errorMessage && errorMessage.includes("Pasien dengan NIK")) {
@@ -56,7 +53,6 @@
     <div class="container mt-4">
       <h2 class="text-center mb-4">New Patient & Appointment</h2>
 
-      <!-- The form uses GET to fetch the initial form and POST for submission -->
       <form
         th:action="@{/appointment/create-with-patient}"
         method="post"
@@ -146,7 +142,6 @@
               </div>
             </div>
 
-            <!-- Doctor selection -->
             <div class="mb-3">
               <label for="doctorId" class="form-label">Doctor</label>
               <select
@@ -165,7 +160,6 @@
               </select>
             </div>
 
-            <!-- Appointment date selection -->
             <div class="mb-3">
               <label for="appointmentDate" class="form-label"
                 >Appointment Date</label
@@ -196,7 +190,6 @@
           </div>
         </div>
       </form>
-      <!-- Error Modal -->
       <div
         class="modal fade"
         id="errorModal"
@@ -216,7 +209,7 @@
               ></button>
             </div>
             <div class="modal-body" id="errorModalBody">
-              <!-- Error message will be inserted here -->
+              <!-- error message will be inserted here -->
             </div>
             <div class="modal-footer">
               <button

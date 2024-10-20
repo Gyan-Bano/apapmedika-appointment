@@ -39,10 +39,15 @@
         // Set the selected date if it exists
         var scheduleSelect = document.getElementById("appointmentDate");
         var selectedDate =
-          /*[[${UpdateAppointmentRequestDTO.appointmentDate}]]*/ null;
-        if (selectedDate) {
+          /*[[${#dates.format(UpdateAppointmentRequestDTO.appointmentDate, 'yyyy-MM-dd')}]]*/ "null";
+        console.log("Selected date: ", selectedDate); // Debugging
+
+        if (selectedDate && selectedDate !== "null") {
           for (var i = 0; i < scheduleSelect.options.length; i++) {
+            console.log("Matched option: ", scheduleSelect.options[i]); // Debugging
+
             if (scheduleSelect.options[i].value === selectedDate) {
+              console.log("Matched option: ", scheduleSelect.options[i]); // Debugging
               scheduleSelect.options[i].selected = true;
               break;
             }
@@ -107,6 +112,15 @@
                 required
               >
                 <option value="">Select doctor first...</option>
+
+                <!-- Add the selected appointment date if it isn't part of the doctor's schedule -->
+                <option
+                  th:if="${UpdateAppointmentRequestDTO.appointmentDate != null && !doctorSchedules[UpdateAppointmentRequestDTO.doctorId].contains(UpdateAppointmentRequestDTO.appointmentDate)}"
+                  th:value="${#dates.format(UpdateAppointmentRequestDTO.appointmentDate, 'yyyy-MM-dd')}"
+                  th:text="${#dates.format(UpdateAppointmentRequestDTO.appointmentDate, 'dd MMMM yyyy')}"
+                  selected="selected"
+                ></option>
+
                 <th:block th:each="doctor : ${listDoctors}">
                   <option
                     th:each="schedule : ${doctorSchedules[doctor.id]}"

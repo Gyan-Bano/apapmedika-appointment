@@ -22,7 +22,6 @@
     <nav th:replace="~{fragments/navbar :: navbar}"></nav>
 
     <div class="container">
-      <!-- Top Filters Section -->
       <div class="d-flex justify-content-between align-items-center my-4">
         <h2>Appointments</h2>
         <div>
@@ -78,13 +77,11 @@
         </div>
       </form>
 
-      <!-- Appointment Count Display -->
       <div class="alert alert-info" th:if="${appointmentCount != null}">
         Number of appointments in the selected date range:
         <span th:text="${appointmentCount}"></span>
       </div>
 
-      <!-- Table Section -->
       <table id="appointmentsTable" class="display">
         <thead>
           <tr>
@@ -125,15 +122,15 @@
           info: true,
           lengthChange: true,
           pageLength: 10,
-          order: [[0, "asc"]], // Sort by 'No' column (index 0) ascending by default
+          order: [[0, "asc"]], // sort by 'No' column (index 0) ascending by default
           columnDefs: [
-            { orderable: false, targets: [6] }, // Disable sorting for 'No' and 'Action' columns
+            { orderable: false, targets: [6] }, // disable sorting for 'No' and 'Action' columns
           ],
         });
 
         // Status filter
         $("#statusFilter").on("change", function () {
-          table.column(5).search(this.value).draw(); // Apply the status filter
+          table.column(5).search(this.value).draw(); 
         });
       });
     </script>

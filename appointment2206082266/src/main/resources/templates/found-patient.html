@@ -24,7 +24,6 @@
 
               <form>
                 <div class="row mb-3">
-                  <!-- NIK Field -->
                   <div class="col-md-6">
                     <label for="nik" class="form-label">NIK</label>
                     <input
@@ -37,7 +36,6 @@
                     />
                   </div>
 
-                  <!-- Name Field -->
                   <div class="col-md-6">
                     <label for="name" class="form-label">Name</label>
                     <input
@@ -52,7 +50,6 @@
                 </div>
 
                 <div class="row mb-3">
-                  <!-- Gender Field -->
                   <div class="col-md-6">
                     <label for="gender" class="form-label">Gender</label>
                     <input
@@ -65,7 +62,6 @@
                     />
                   </div>
 
-                  <!-- Date of Birth Field -->
                   <div class="col-md-6">
                     <label for="dob" class="form-label">Date of Birth</label>
                     <input
@@ -79,7 +75,6 @@
                   </div>
                 </div>
 
-                <!-- Create Appointment Button -->
                 <div class="d-flex justify-content-center">
                   <a
                     th:href="@{/appointment/{nik}/create(nik=${patient.nik})}"

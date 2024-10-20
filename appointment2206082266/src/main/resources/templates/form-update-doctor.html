@@ -12,7 +12,6 @@
     <div class="container mt-4">
       <h2 class="text-center mb-4">Update Doctor</h2>
 
-      <!-- Form for updating the doctor -->
       <form
         th:action="@{/doctor/update}"
         method="post"
@@ -124,7 +123,6 @@
           />
         </div>
 
-        <!-- Schedule table -->
         <div class="mb-3">
           <label for="schedule" class="form-label">Schedule</label>
           <div class="input-group">
@@ -136,7 +134,6 @@
                 </tr>
               </thead>
               <tbody>
-                <!-- Iterate over the existing schedules -->
                 <tr th:each="schedule, stat : *{schedules}">
                   <td>
                     <select
@@ -166,7 +163,6 @@
                 </tr>
               </tbody>
             </table>
-            <!-- Add row button -->
             <button class="btn btn-secondary" type="submit" name="addRow">
               Add Schedule
             </button>

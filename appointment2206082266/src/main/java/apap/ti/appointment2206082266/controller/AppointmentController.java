@@ -39,8 +39,6 @@ import java.time.LocalDate;
 import java.util.Calendar;
 
 
-
-
 @Controller
 @RequestMapping("/appointment")
 public class AppointmentController {
@@ -72,7 +70,6 @@ public class AppointmentController {
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("d MMMM yyyy");
     private static final SimpleDateFormat dateTimeFormat = new SimpleDateFormat("d MMMM yyyy HH:mm");
 
-    // Refactored helper method to format appointment data
     private Map<String, Object> formatAppointment(Appointment appointment) {
         Map<String, Object> formattedAppointment = new HashMap<>();
         
@@ -134,11 +131,9 @@ public class AppointmentController {
         AddPatientAppointmentRequestDTO appointmentWithNewPatientRequestDTO = new AddPatientAppointmentRequestDTO();
         model.addAttribute("AddPatientAppointmentRequestDTO", appointmentWithNewPatientRequestDTO);
 
-        // Load list of doctors
         List<Doctor> listDoctors = doctorService.getAllDoctors();
         model.addAttribute("listDoctors", listDoctors);
 
-        // Load specializations for doctors
         Map<String, String> doctorSpecializations = new HashMap<>();
         for (Doctor doctor : listDoctors) {
             SpecializationInfo specializationInfo = doctorService.getSpecializationCodes().get(doctor.getSpecialist());
@@ -146,13 +141,12 @@ public class AppointmentController {
         }
         model.addAttribute("doctorSpecializations", doctorSpecializations);
 
-        // Load schedules for all doctors
         Map<String, List<Date>> doctorSchedules = new HashMap<>();
         for (Doctor doctor : listDoctors) {
             List<Date> nextFourWeeks = doctorService.getNextFourWeeks(doctor);
-            doctorSchedules.put(doctor.getId(), nextFourWeeks); // Doctor's ID as the key
+            doctorSchedules.put(doctor.getId(), nextFourWeeks); 
         }
-        model.addAttribute("doctorSchedules", doctorSchedules); // Send schedules to the view
+        model.addAttribute("doctorSchedules", doctorSchedules); 
 
         return "form-add-patient-appointment"; 
     }
@@ -165,11 +159,9 @@ public class AppointmentController {
         if (patientService.getPatientByNik(appointmentWithNewPatientRequestDTO.getNik()) == null) {
             Appointment savedAppointment = appointmentService.createAppointmentWithPatient(appointmentWithNewPatientRequestDTO);
 
-            // Add a success message to the model
             model.addAttribute("responseMessage", String.format("Pasien %s dengan ID %s berhasil ditambahkan. Appointment untuk pasien ini juga berhasil dibuat dengan ID appointment %s.", savedAppointment.getPatient().getName(), savedAppointment.getPatient().getId(), savedAppointment.getId()));
             return "response-appointment";
         } else {
-            // Add an error message to the model
             model.addAttribute("responseMessage", String.format("Pasien dengan NIK %s sudah ada. Appointment gagal dibuat.", appointmentWithNewPatientRequestDTO.getNik()));
 
             return formCreateAppointmentWithPatient(model);
@@ -181,11 +173,10 @@ public class AppointmentController {
         model.addAttribute("page", "appointments");
         Appointment appointment = appointmentService.getAppointmentById(id);
 
-        // Add attributes to the model
         model.addAttribute("appointment", formatAppointment(appointment));
         model.addAttribute("editable", false);
 
-        return "view-appointment"; // Points to the Thymeleaf template
+        return "view-appointment"; 
     }
 
     @GetMapping("/{nik}/create") 
@@ -198,11 +189,9 @@ public class AppointmentController {
         appointmentWithExistingPatientRequestDTO.setNik(nik);
         model.addAttribute("AddAppointmentRequestDTO", appointmentWithExistingPatientRequestDTO);
 
-        // Load list of doctors
         List<Doctor> listDoctors = doctorService.getAllDoctors();
         model.addAttribute("listDoctors", listDoctors);
 
-        // Load specializations for doctors
         Map<String, String> doctorSpecializations = new HashMap<>();
         for (Doctor doctor : listDoctors) {
             SpecializationInfo specializationInfo = doctorService.getSpecializationCodes().get(doctor.getSpecialist());
@@ -210,13 +199,12 @@ public class AppointmentController {
         }
         model.addAttribute("doctorSpecializations", doctorSpecializations);
 
-        // Load schedules for all doctors
         Map<String, List<Date>> doctorSchedules = new HashMap<>();
         for (Doctor doctor : listDoctors) {
             List<Date> nextFourWeeks = doctorService.getNextFourWeeks(doctor);
-            doctorSchedules.put(doctor.getId(), nextFourWeeks); // Doctor's ID as the key
+            doctorSchedules.put(doctor.getId(), nextFourWeeks); 
         }
-        model.addAttribute("doctorSchedules", doctorSchedules); // Send schedules to the view
+        model.addAttribute("doctorSchedules", doctorSchedules);
 
         return "form-add-appointment";
     }
@@ -228,7 +216,7 @@ public class AppointmentController {
         appointment.setPatient(patientService.getPatientByNik(appointmentWithExistingPatientRequestDTO.getNik()));
         appointment.setDoctor(doctorService.getDoctorById(appointmentWithExistingPatientRequestDTO.getDoctorId()));
         appointment.setDate(appointmentWithExistingPatientRequestDTO.getAppointmentDate());
-        appointment.setStatus(0); // Default status to pending or unconfirmed
+        appointment.setStatus(0); // default status created
         appointment.setTotalFee(doctorService.getDoctorById(appointmentWithExistingPatientRequestDTO.getDoctorId()).getFee());
 
         String specCode = appointmentWithExistingPatientRequestDTO.getDoctorId().substring(0, 3);
@@ -263,11 +251,9 @@ public class AppointmentController {
 
         model.addAttribute("UpdateAppointmentRequestDTO", appointmentRequestDTO);
 
-        // Load list of doctors
         List<Doctor> listDoctors = doctorService.getAllDoctors();
         model.addAttribute("listDoctors", listDoctors);
 
-        // Load specializations for doctors
         Map<String, String> doctorSpecializations = new HashMap<>();
         for (Doctor doctor : listDoctors) {
             SpecializationInfo specializationInfo = doctorService.getSpecializationCodes().get(doctor.getSpecialist());
@@ -275,16 +261,12 @@ public class AppointmentController {
         }
         model.addAttribute("doctorSpecializations", doctorSpecializations);
 
-        // Load schedules for all doctors
         Map<String, List<Date>> doctorSchedules = new HashMap<>();
         for (Doctor doctor : listDoctors) {
             List<Date> nextFourWeeks = doctorService.getNextFourWeeks(doctor);
-            doctorSchedules.put(doctor.getId(), nextFourWeeks); // Doctor's ID as the key
+            doctorSchedules.put(doctor.getId(), nextFourWeeks); 
         }
-        // Log the data being sent to the view
-        System.out.println("Appointment Treatments: " + appointment.getTreatments().toString());
-        System.out.println("Available Treatments: " + treatmentService.getAllTreatments().toString());
-        model.addAttribute("doctorSchedules", doctorSchedules); // Send schedules to the view
+        model.addAttribute("doctorSchedules", doctorSchedules);
 
         return "form-update-appointment";
     }
@@ -368,20 +350,16 @@ public class AppointmentController {
         model.addAttribute("appointment", formatAppointment(appointment));
     
         if (addRow != null) {
-            // Add a new empty treatment
             diagnosisTreatmentDTO.getTreatmentIds().add(null);
         } else if (deleteRow != null) {
-            // Remove the treatment at the specified index
             Long removedTreatmentId = diagnosisTreatmentDTO.getTreatmentIds().remove(deleteRow.intValue());
             if (removedTreatmentId != null) {
                 Treatment removedTreatment = treatmentService.getTreatmentById(removedTreatmentId);
                 appointment.setTotalFee(appointment.getTotalFee() - removedTreatment.getPrice());
             }
         } else {
-            // Save the form
             appointment.setDiagnosis(diagnosisTreatmentDTO.getDiagnosis());
             
-            // Convert treatment IDs back to Treatment objects and calculate new total fee
             List<Treatment> treatments = diagnosisTreatmentDTO.getTreatmentIds().stream()
                 .filter(Objects::nonNull)
                 .map(treatmentService::getTreatmentById)
@@ -400,7 +378,7 @@ public class AppointmentController {
             return "response-appointment";
         }
     
-        // If we're adding or deleting a row, re-render the form
+        // if adding or deleting a row, re-render the form
         model.addAttribute("UpdateDiagnosisTreatmentRequestDTO", diagnosisTreatmentDTO);
         model.addAttribute("editable", true);
         model.addAttribute("treatments", treatmentService.getAllTreatments());
@@ -456,7 +434,7 @@ public class AppointmentController {
             model.addAttribute("statistics", statistics);
             model.addAttribute("period", period);
             model.addAttribute("year", year);
-            return "statistics-appointment"; // This should match your Thymeleaf template name
+            return "statistics-appointment"; 
 
         } catch (Exception e) {
             model.addAttribute("errorMessage", e.getMessage());

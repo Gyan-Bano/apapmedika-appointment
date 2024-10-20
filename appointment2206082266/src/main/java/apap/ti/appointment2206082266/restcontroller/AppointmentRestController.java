@@ -12,7 +12,7 @@ import jakarta.validation.Valid;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map; // Fix: Import the correct Map class
+import java.util.Map; 
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -24,9 +24,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.HashMap;
 import java.util.ArrayList;
-import java.time.LocalDate; // Fix: Import the LocalDate class from java.time package
-import java.time.format.TextStyle; // Fix: Import the TextStyle class from java.time.format package
-import java.util.Locale; // Fix: Import the Locale class from java.util package
+import java.time.LocalDate; 
+import java.time.format.TextStyle; 
+import java.util.Locale; 
 import java.time.ZoneId;
 
 
@@ -94,7 +94,6 @@ public class AppointmentRestController {
                 }
             }
 
-            // Set successful response
             statistics.put("data", data);
             baseResponseDTO.setStatus(HttpStatus.OK.value());
             baseResponseDTO.setMessage("Appointment statistics retrieved successfully");
@@ -103,7 +102,6 @@ public class AppointmentRestController {
             return new ResponseEntity<>(baseResponseDTO, HttpStatus.OK);
 
         } catch (Exception e) {
-            // Handle any errors that might occur
             baseResponseDTO.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
             baseResponseDTO.setMessage("Error retrieving appointment statistics: " + e.getMessage());
             baseResponseDTO.setTimestamp(new Date());

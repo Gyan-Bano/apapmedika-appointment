@@ -35,7 +35,6 @@ class AppointmentRestServiceTest {
 
     @BeforeEach
     void setUp() {
-        // Initialize the mocks before each test
         MockitoAnnotations.openMocks(this);
 
         // Mock Doctor
@@ -61,23 +60,19 @@ class AppointmentRestServiceTest {
         Date fromDate = dateFormat.parse("2024-10-01");
         Date toDate = dateFormat.parse("2024-10-15");
 
-        // Mock Treatments
         TreatmentResponseDTO treatmentDTO = new TreatmentResponseDTO(1L, "Consultation", 150000L, new Date(), new Date());
 
-        // Mock DoctorResponseDTO
         DoctorResponseDTO doctorResponseDTO = new DoctorResponseDTO();
         doctorResponseDTO.setId(doctor.getId());
         doctorResponseDTO.setName(doctor.getName());
         doctorResponseDTO.setSpecialist(doctor.getSpecialist());
         doctorResponseDTO.setFee(doctor.getFee());
 
-        // Mock PatientResponseDTO
         PatientResponseDTO patientResponseDTO = new PatientResponseDTO();
         patientResponseDTO.setId(patient.getId());
         patientResponseDTO.setName(patient.getName());
         patientResponseDTO.setNik(patient.getNik());
 
-        // Mock Appointment 1
         AppointmentResponseDTO responseDTO1 = new AppointmentResponseDTO();
         responseDTO1.setId("appointment-1");
         responseDTO1.setDoctor(doctorResponseDTO);
@@ -86,11 +81,10 @@ class AppointmentRestServiceTest {
         responseDTO1.setDiagnosis("Fever");
         responseDTO1.setTreatments(List.of(treatmentDTO));
         responseDTO1.setTotalFee(650000L);
-        responseDTO1.setStatus(0); // Created
+        responseDTO1.setStatus(0);
         responseDTO1.setCreatedAt(new Date());
         responseDTO1.setUpdatedAt(new Date());
 
-        // Mock Appointment 2
         AppointmentResponseDTO responseDTO2 = new AppointmentResponseDTO();
         responseDTO2.setId("appointment-2");
         responseDTO2.setDoctor(doctorResponseDTO);
@@ -103,19 +97,14 @@ class AppointmentRestServiceTest {
         responseDTO2.setCreatedAt(new Date());
         responseDTO2.setUpdatedAt(new Date());
 
-        // Create a list of mock appointments
         List<AppointmentResponseDTO> mockAppointments = List.of(responseDTO1, responseDTO2);
 
-        // Mock the service behavior
         when(appointmentRestService.getAllAppointments(fromDate, toDate)).thenReturn(mockAppointments);
 
-        // Call the method under test
         var response = appointmentRestController.getAllAppointments(fromDate, toDate);
 
-        // Verify that the service method was called
         verify(appointmentRestService, times(1)).getAllAppointments(fromDate, toDate);
 
-        // Assert that the response contains the correct data
         assertEquals(200, response.getStatusCodeValue()); // Check if the response status is OK (200)
         assertEquals(2, response.getBody().getData().size()); // Check if the correct number of appointments is returned
         assertEquals("John Doe", response.getBody().getData().get(0).getPatient().getName()); // Check first appointment patient name
@@ -128,16 +117,12 @@ class AppointmentRestServiceTest {
         Date fromDate = dateFormat.parse("2024-01-01");
         Date toDate = dateFormat.parse("2024-01-15");
 
-        // Mock the service to return an empty list
         when(appointmentRestService.getAllAppointments(fromDate, toDate)).thenReturn(List.of());
 
-        // Call the method under test
         var response = appointmentRestController.getAllAppointments(fromDate, toDate);
 
-        // Verify that the service method was called
         verify(appointmentRestService, times(1)).getAllAppointments(fromDate, toDate);
 
-        // Assert that the response contains the correct data
         assertEquals(200, response.getStatusCodeValue()); // Check if the response status is OK (200)
         assertEquals(0, response.getBody().getData().size()); // Check that no appointments are returned
     }

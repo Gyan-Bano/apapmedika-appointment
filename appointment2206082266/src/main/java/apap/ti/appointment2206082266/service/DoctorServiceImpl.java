@@ -63,10 +63,8 @@ public class DoctorServiceImpl implements DoctorService{
         }
         String specCode = specInfo.getCode(); 
 
-        // Increment the global sequence number
         globalSequenceNumber++;
 
-        // Use the global sequence number, ensuring it's always 3 digits
         String sequence = String.format("%03d", globalSequenceNumber % 1000);
 
         return specCode + sequence;
@@ -110,16 +108,14 @@ public class DoctorServiceImpl implements DoctorService{
     public void deleteDoctor(Doctor doctor) {
         Date now = new Date();
 
-        // Set deletedAt timestamp for the doctor
         doctor.setDeletedAt(now);
 
-        // Soft delete all related appointments by setting their deletedAt timestamp
+        // soft delete all related appointments by setting their deletedAt timestamp
         doctor.getAppointments().forEach(appointment -> {
             appointment.setDeletedAt(now);
-            appointmentDb.save(appointment);  // Save appointment changes
+            appointmentDb.save(appointment);  
         });
 
-        // Save the doctor entity with the deletedAt timestamp
         doctorDb.save(doctor);
     }
 
@@ -129,7 +125,6 @@ public class DoctorServiceImpl implements DoctorService{
         List<Date> nextFourWeeks = new ArrayList<>();
         List<Date> bookedDates = new ArrayList<>();
 
-        // Get all booked dates from appointments
         for (Appointment appointment : doctor.getAppointments()) {
             Calendar cal = Calendar.getInstance();
             cal.setTime(appointment.getDate());
@@ -141,10 +136,9 @@ public class DoctorServiceImpl implements DoctorService{
         }
 
         Calendar calendar = Calendar.getInstance();
-        for (int i = 0; i < 28; i++) { // Check the next 28 days
+        for (int i = 0; i < 28; i++) { // 4 weeks
             calendar.add(Calendar.DAY_OF_MONTH, 1);
             int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
-            // Convert Calendar's day of week to match your schedule (1 for Monday, 2 for Tuesday, etc.)
             int convertedDayOfWeek = dayOfWeek == 1 ? 7 : dayOfWeek - 1;
             
             if (practiceDays.contains(convertedDayOfWeek)) {
@@ -154,7 +148,6 @@ public class DoctorServiceImpl implements DoctorService{
                 currentDate.set(Calendar.SECOND, 0);
                 currentDate.set(Calendar.MILLISECOND, 0);
                 
-                // Only add the date if it's not already booked
                 if (!bookedDates.contains(currentDate.getTime())) {
                     nextFourWeeks.add(calendar.getTime());
                 }
@@ -172,12 +165,10 @@ public class DoctorServiceImpl implements DoctorService{
 
     @Override
     public void updateAppointmentDoctor(String oldDoctorId, String newDoctorId, Appointment appointment) {
-        // Get the doctor who currently has the appointment
         Doctor oldDoctor = getDoctorById(oldDoctorId);
         oldDoctor.getAppointments().remove(appointment);
         doctorDb.save(oldDoctor);
 
-        // Get the doctor who will have the appointment
         Doctor newDoctor = getDoctorById(newDoctorId);
         newDoctor.getAppointments().add(appointment);
         doctorDb.save(newDoctor);

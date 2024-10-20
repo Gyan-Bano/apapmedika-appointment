@@ -62,7 +62,6 @@ public class AppointmentRestServiceImpl implements AppointmentRestService {
         appointmentResponseDTO.setCreatedAt(appointment.getCreatedAt());
         appointmentResponseDTO.setUpdatedAt(appointment.getUpdatedAt());
 
-        // Convert Patient
         if (appointment.getPatient() != null) {
             PatientResponseDTO patientDTO = new PatientResponseDTO();
             patientDTO.setId(appointment.getPatient().getId());
@@ -77,7 +76,6 @@ public class AppointmentRestServiceImpl implements AppointmentRestService {
             appointmentResponseDTO.setPatient(patientDTO);
         }
 
-        // Convert Doctor
         if (appointment.getDoctor() != null) {
             DoctorResponseDTO doctorDTO = new DoctorResponseDTO();
             doctorDTO.setId(appointment.getDoctor().getId());
@@ -93,7 +91,6 @@ public class AppointmentRestServiceImpl implements AppointmentRestService {
             appointmentResponseDTO.setDoctor(doctorDTO);
         }
 
-        // Convert Treatments
         if (appointment.getTreatments() != null && !appointment.getTreatments().isEmpty()) {
             List<TreatmentResponseDTO> treatmentDTOs = appointment.getTreatments().stream()
                 .map(treatment -> {
@@ -128,32 +125,27 @@ public class AppointmentRestServiceImpl implements AppointmentRestService {
 
     @Override 
     public AppointmentResponseDTO addAppointment(String nik, AddAppointmentRequestRestDTO appointmentDTO) {
-        // Find the patient by NIK
         Patient patient = patientDb.findByNik(nik);
         if (patient == null) {
             throw new RuntimeException("Patient with NIK " + nik + " not found");
         }
 
-        // Find the doctor by ID
         Doctor doctor = doctorDb.findById(appointmentDTO.getDoctorId()).orElse(null);
         if (doctor == null) {
             throw new RuntimeException("Doctor with ID " + appointmentDTO.getDoctorId() + " not found");
         }
 
-        // Create new Appointment
         Appointment appointment = new Appointment();
         appointment.setId(appointmentService.generateAppointmentId(appointmentDTO.getDoctorId().substring(0, 3), appointmentDTO.getAppointmentDate()));
         appointment.setPatient(patient);
         appointment.setDoctor(doctor);
         appointment.setDate(appointmentDTO.getAppointmentDate());
-        appointment.setStatus(0); // Assuming 0 is the initial status for a new appointment
+        appointment.setStatus(0); // default status created 0
         appointment.setCreatedAt(new Date());
         appointment.setUpdatedAt(new Date());
 
-        // Save the appointment
         Appointment savedAppointment = appointmentDb.save(appointment);
 
-        // Convert and return the saved appointment as DTO
         return appointmentToAppointmentResponseDTO(savedAppointment);
     }
 }

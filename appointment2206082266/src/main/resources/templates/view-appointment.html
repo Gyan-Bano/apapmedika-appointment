@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <title>Appointment Detail</title>
 
-    <!-- Bootstrap 4.5.2 -->
     <object th:include="~{fragments/common :: js}" th:remove="tag"></object>
     <object th:include="~{fragments/common :: css}" th:remove="tag"></object>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
@@ -23,28 +22,22 @@
 
   <body>
     <nav th:replace="~{fragments/navbar :: navbar}"></nav>
-    <!-- Navbar Fragment -->
 
     <div class="container mt-4">
       <div class="card">
-        <!-- Card Header for Appointment Details and Actions -->
         <div
           class="card-header d-flex justify-content-between align-items-center"
         >
           <div class="d-flex align-items-center">
             <h5 class="mb-0 me-2">Appointment Detail</h5>
             <span
-              class="badge bg-success me-2"
-              th:classappend="${
-              appointment.status == 'Done' ? 'badge-success' : 
-              appointment.status == 'Cancelled' ? 'badge-warning' : 
-              'badge-secondary'}"
+                class="badge bg-primary me-2"
+                th:classappend="${appointment.status == 'Done' ? 'bg-success' : appointment.status == 'Cancelled' ? 'bg-warning' : 'bg-primary'}"
               th:text="${appointment.status}"
             >
             </span>
           </div>
 
-          <!-- Appointment Actions -->
           <div class="btn-group" role="group" aria-label="Appointment actions">
             <form
               th:if="${appointment.status != Done}"
@@ -89,7 +82,6 @@
           </div>
         </div>
 
-        <!-- Card Body for Appointment Details -->
         <div class="card-body">
           <div class="row">
             <div class="col-md-6">
@@ -125,7 +117,6 @@
 
           <hr />
 
-          <!-- Editable Mode -->
           <div th:if="${editable}">
             <form
               th:action="@{/appointment/note}"
@@ -146,7 +137,6 @@
                 </div>
               </div>
 
-              <!-- Treatment Rows -->
               <div class="row mb-3">
                 <div class="col-md-12">
                   <h5>Treatments</h5>
@@ -187,24 +177,20 @@
                     </tbody>
                   </table>
 
-                  <!-- Add Treatment Button -->
                   <button class="btn btn-secondary" type="submit" name="addRow">
                     Add Treatment
                   </button>
                 </div>
               </div>
 
-              <!-- Save Button -->
               <div class="row">
                 <div class="col-md-12 text-end">
-                  <!-- Add the text-end class here -->
                   <button type="submit" class="btn btn-primary">Save</button>
                 </div>
               </div>
             </form>
           </div>
 
-          <!-- View Mode (if not editable) -->
           <div th:unless="${editable}">
             <div class="row mb-3">
               <div class="col-md-12">
@@ -232,10 +218,8 @@
               </div>
             </div>
 
-            <!-- Edit Diagnosis & Treatments Button -->
             <div class="row">
               <div class="col-md-12 text-end">
-                <!-- Add the text-end class here -->
                 <a
                   th:href="@{/appointment/{id}/note(id=${appointment.id})}"
                   class="btn btn-primary"
@@ -256,7 +240,7 @@
     >
       <div class="modal-dialog">
         <div class="modal-content" id="deleteConfirmContent">
-          <!-- Content will be loaded here -->
+          <!-- content will be loaded here -->
         </div>
       </div>
     </div>

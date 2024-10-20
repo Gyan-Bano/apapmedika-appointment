@@ -61,10 +61,8 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     @Transactional
     public Appointment createAppointmentWithPatient(AddPatientAppointmentRequestDTO dto) {
-        // Check if patient exists
         Patient patient = patientService.getPatientByNik(dto.getNik());
         if (patient == null) {
-            // Create new patient
             patient = new Patient();
             patient.setNik(dto.getNik());
             patient.setName(dto.getName());
@@ -75,12 +73,11 @@ public class AppointmentServiceImpl implements AppointmentService {
             patient = patientService.addPatient(patient);
         }
 
-        // Create appointment
         Appointment appointment = new Appointment();
         appointment.setPatient(patient);
         appointment.setDoctor(doctorService.getDoctorById(dto.getDoctorId()));
         appointment.setDate(dto.getAppointmentDate());
-        appointment.setStatus(0); // Default status to pending or unconfirmed
+        appointment.setStatus(0); 
         appointment.setTotalFee(doctorService.getDoctorById(dto.getDoctorId()).getFee());
 
         String specCode = dto.getDoctorId().substring(0, 3);
@@ -89,7 +86,6 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         doctorService.addAppointmentToDoctor(dto.getDoctorId(), appointment);
     
-        // Save appointment to DB
         return appointmentDb.save(appointment);
     }
 
@@ -119,7 +115,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         existingAppointment.setTotalFee(appointment.getTotalFee());
         existingAppointment.setUpdatedAt(new Date());
 
-        // Update doctor if changed
+        // update doctor if changed
         if (!existingAppointment.getDoctor().getId().equals(appointment.getDoctor().getId())) {
             doctorService.updateAppointmentDoctor(existingAppointment.getDoctor().getId(), 
                                                   appointment.getDoctor().getId(), 
@@ -213,7 +209,6 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     public Map<String, Object> getAppointmentStatisticsFromRest(String period, int year) throws Exception {
-        // Build the request with WebClient and pass period and year as query parameters
         var response = webClient
             .get()
             .uri(uriBuilder -> uriBuilder
@@ -224,9 +219,8 @@ public class AppointmentServiceImpl implements AppointmentService {
             )
             .retrieve()
             .bodyToMono(new ParameterizedTypeReference<BaseResponseDTO<Map<String, Object>>>() {})
-            .block(); // Block to wait for the response
+            .block(); 
 
-        // Handle possible null or error responses
         if (response == null) {
             throw new Exception("Failed to consume API for appointment statistics");
         }
@@ -235,11 +229,9 @@ public class AppointmentServiceImpl implements AppointmentService {
             throw new Exception(response.getMessage());
         }
 
-        // Return the data (statistics map) from the response
         return response.getData();
     }
 
-    // Service implementation
     public List<Appointment> getTodayActiveStatusZeroCreatedAppointments() {
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.HOUR_OF_DAY, 0);
