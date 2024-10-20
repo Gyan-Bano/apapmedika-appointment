@@ -7,7 +7,7 @@ import java.util.List;
 import apap.ti.appointment2206082266.restdto.response.AppointmentResponseDTO;
 
 public interface AppointmentRestService {
-    List<AppointmentResponseDTO> getAllAppointment();
+    List<AppointmentResponseDTO> getAllAppointments(Date fromDate, Date toDate);
     long countAppointmentsByDateRange(Date startDate, Date endDate);
 
 } 

@@ -23,9 +23,18 @@ public class AppointmentRestServiceImpl implements AppointmentRestService {
     private AppointmentDb appointmentDb;
     
     @Override
-    public List<AppointmentResponseDTO> getAllAppointment() {
-        List<Appointment> appointmentList = appointmentDb.findAllActiveAppointments();
-        return appointmentList.stream().map(this::appointmentToAppointmentResponseDTO).collect(Collectors.toList());
+    public List<AppointmentResponseDTO> getAllAppointments(Date fromDate, Date toDate) {
+        List<Appointment> appointmentList;
+        
+        if (fromDate != null && toDate != null) {
+            appointmentList = appointmentDb.findActiveAppointmentsByDateRange(fromDate, toDate);
+        } else {
+            appointmentList = appointmentDb.findAllActiveAppointments();
+        }
+        
+        return appointmentList.stream()
+                .map(this::appointmentToAppointmentResponseDTO)
+                .collect(Collectors.toList());
     }
 
     private AppointmentResponseDTO appointmentToAppointmentResponseDTO(Appointment appointment) {

@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -112,8 +111,8 @@ public class AppointmentController {
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date toDate, 
             Model model) {
         try {
-            List<AppointmentResponseDTO> filteredAppointments = appointmentService.getAllAppointmentsHybridFromRest(fromDate, toDate);
-            long appointmentCount = appointmentService.countAppointmentsHybridFromRest(fromDate, toDate);
+            List<AppointmentResponseDTO> filteredAppointments = appointmentService.getAllAppointmentsFromRest(fromDate, toDate);
+            long appointmentCount = appointmentService.countAppointmentsFromRest(fromDate, toDate);
             
             model.addAttribute("listAppointments", filteredAppointments);
             model.addAttribute("appointmentCount", appointmentCount);

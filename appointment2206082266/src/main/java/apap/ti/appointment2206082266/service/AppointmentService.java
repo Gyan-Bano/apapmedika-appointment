@@ -21,8 +21,7 @@ public interface AppointmentService {
     void deleteAppointment(Appointment appointment);
     List<Appointment> getAppointmentsByDateRange(Date fromDate, Date toDate);
     long countAppointmentsByDateRange(Date fromDate, Date toDate);
-    List<AppointmentResponseDTO> getAllApointmentFromRest() throws Exception;
-    List<AppointmentResponseDTO> getAllAppointmentsHybridFromRest(Date fromDate, Date toDate) throws Exception;
-    long countAppointmentsHybridFromRest(Date fromDate, Date toDate) throws Exception;
+    List<AppointmentResponseDTO> getAllAppointmentsFromRest(Date fromDate, Date toDate) throws Exception;
+    long countAppointmentsFromRest(Date fromDate, Date toDate) throws Exception;
     Map<String, Object> getAppointmentStatisticsFromRest(String period, int year) throws Exception;
 }

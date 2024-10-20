@@ -3,9 +3,7 @@ package apap.ti.appointment2206082266.service;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +17,7 @@ import apap.ti.appointment2206082266.restdto.response.BaseResponseDTO;
 import jakarta.persistence.EntityNotFoundException;
 
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
@@ -174,16 +173,29 @@ public class AppointmentServiceImpl implements AppointmentService {
         return appointmentDb.countActiveAppointmentsByDateRange(fromDate, toDate);
     }
 
+
     @Override
-    public List<AppointmentResponseDTO> getAllApointmentFromRest() throws Exception {
+    public List<AppointmentResponseDTO> getAllAppointmentsFromRest(Date fromDate, Date toDate) throws Exception {
+        UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromPath("/appointment/all");
+        
+        if (fromDate != null) {
+            uriBuilder.queryParam("fromDate", new SimpleDateFormat("yyyy-MM-dd").format(fromDate));
+        }
+        if (toDate != null) {
+            uriBuilder.queryParam("toDate", new SimpleDateFormat("yyyy-MM-dd").format(toDate));
+        }
+
+        String uri = uriBuilder.build().toUriString();
+
         var response = webClient
-        .get()
-        .uri("/appointment/all")
-        .retrieve()
-        .bodyToMono(new ParameterizedTypeReference<BaseResponseDTO<List<AppointmentResponseDTO>>>() {})
-        .block();
+            .get()
+            .uri(uri)
+            .retrieve()
+            .bodyToMono(new ParameterizedTypeReference<BaseResponseDTO<List<AppointmentResponseDTO>>>() {})
+            .block();
+
         if (response == null) {
-            throw new Exception("Failed consume API getAllAppointment");
+            throw new Exception("Failed to consume API getAllAppointments");
         }
 
         if (response.getStatus() != 200) {
@@ -193,25 +205,9 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
-    public List<AppointmentResponseDTO> getAllAppointmentsHybridFromRest(Date fromDate, Date toDate) throws Exception {
-        List<AppointmentResponseDTO> allAppointments = getAllApointmentFromRest();
-        
-        if (fromDate == null || toDate == null) {
-            return allAppointments;
-        }
-
-        return allAppointments.stream()
-            .filter(app -> {
-                Date appDate = app.getDate();
-                return !appDate.before(fromDate) && !appDate.after(toDate);
-            })
-            .collect(Collectors.toList());
-    }
-
-    @Override
-    public long countAppointmentsHybridFromRest(Date fromDate, Date toDate) throws Exception {
-        List<AppointmentResponseDTO> filteredAppointments = getAllAppointmentsHybridFromRest(fromDate, toDate);
-        return filteredAppointments.size();
+    public long countAppointmentsFromRest(Date fromDate, Date toDate) throws Exception {
+        List<AppointmentResponseDTO> appointments = getAllAppointmentsFromRest(fromDate, toDate);
+        return appointments.size();
     }
 
     @Override
