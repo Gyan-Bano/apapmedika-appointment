@@ -9,11 +9,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import apap.ti.appointment2206082266.model.Appointment;
+import apap.ti.appointment2206082266.model.Doctor;
+import apap.ti.appointment2206082266.model.Patient;
 import apap.ti.appointment2206082266.repository.AppointmentDb;
+import apap.ti.appointment2206082266.repository.DoctorDb;
+import apap.ti.appointment2206082266.repository.PatientDb;
+import apap.ti.appointment2206082266.restdto.request.AddAppointmentRequestRestDTO;
 import apap.ti.appointment2206082266.restdto.response.AppointmentResponseDTO;
 import apap.ti.appointment2206082266.restdto.response.DoctorResponseDTO;
 import apap.ti.appointment2206082266.restdto.response.PatientResponseDTO;
 import apap.ti.appointment2206082266.restdto.response.TreatmentResponseDTO;
+import apap.ti.appointment2206082266.service.AppointmentService;
 
 @Service
 @Transactional
@@ -21,6 +27,15 @@ public class AppointmentRestServiceImpl implements AppointmentRestService {
 
     @Autowired
     private AppointmentDb appointmentDb;
+
+    @Autowired
+    private DoctorDb doctorDb;
+
+    @Autowired
+    private PatientDb patientDb;
+
+    @Autowired
+    private AppointmentService appointmentService;
     
     @Override
     public List<AppointmentResponseDTO> getAllAppointments(Date fromDate, Date toDate) {
@@ -100,5 +115,45 @@ public class AppointmentRestServiceImpl implements AppointmentRestService {
     @Override
     public long countAppointmentsByDateRange(Date startDate, Date endDate) {
         return appointmentDb.countAllAppointmentsByDateRange(startDate, endDate);
+    }
+
+    @Override
+    public AppointmentResponseDTO getAppointmentById(String id) {
+        Appointment appointment = appointmentDb.findById(id).orElse(null);
+        if (appointment == null) {
+            return null;
+        }
+        return appointmentToAppointmentResponseDTO(appointment);
+    }
+
+    @Override 
+    public AppointmentResponseDTO addAppointment(String nik, AddAppointmentRequestRestDTO appointmentDTO) {
+        // Find the patient by NIK
+        Patient patient = patientDb.findByNik(nik);
+        if (patient == null) {
+            throw new RuntimeException("Patient with NIK " + nik + " not found");
+        }
+
+        // Find the doctor by ID
+        Doctor doctor = doctorDb.findById(appointmentDTO.getDoctorId()).orElse(null);
+        if (doctor == null) {
+            throw new RuntimeException("Doctor with ID " + appointmentDTO.getDoctorId() + " not found");
+        }
+
+        // Create new Appointment
+        Appointment appointment = new Appointment();
+        appointment.setId(appointmentService.generateAppointmentId(appointmentDTO.getDoctorId().substring(0, 3), appointmentDTO.getAppointmentDate()));
+        appointment.setPatient(patient);
+        appointment.setDoctor(doctor);
+        appointment.setDate(appointmentDTO.getAppointmentDate());
+        appointment.setStatus(0); // Assuming 0 is the initial status for a new appointment
+        appointment.setCreatedAt(new Date());
+        appointment.setUpdatedAt(new Date());
+
+        // Save the appointment
+        Appointment savedAppointment = appointmentDb.save(appointment);
+
+        // Convert and return the saved appointment as DTO
+        return appointmentToAppointmentResponseDTO(savedAppointment);
     }
 }
